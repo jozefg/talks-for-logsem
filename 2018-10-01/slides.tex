@@ -1,0 +1,200 @@
+\documentclass[svgnames]{beamer}
+\usepackage{mathpartir, stmaryrd}
+\usepackage{wasysym}
+\usepackage{listings}
+\usepackage{multicol}
+\usepackage{amssymb, amsthm}
+\usepackage{microtype}
+
+
+\usefonttheme[onlymath]{serif}
+\definecolor{JadeGreen}{RGB}{0,168,107}
+\definecolor{MunsellPurple}{RGB}{159,0,197}
+
+\definecolor{CobaltBlue}{RGB}{0,71,171}
+\definecolor{FireBrick}{RGB}{228,34,23}
+\definecolor{Alabaster}{RGB}{250,250,250}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{headline}{}
+\setbeamercolor{example text}{fg=CobaltBlue}
+\setbeamertemplate{itemize items}{$\bullet$}
+
+\newcommand\cxlen[1]{\vert\fmttm{#1}\vert}
+\newcommand\fmttm[1]{{\color{Blue}#1}}
+\newcommand\fmtval[1]{{\color{Red}#1}}
+\newcommand\fmtne[1]{{\color{DarkOrange}#1}}
+\newcommand\fmtnf[1]{{\color{Purple}#1}}
+\newcommand\fmtclo[1]{{\color{Green}#1}}
+
+\newcommand{\bnfeq}{::=}
+\newcommand{\defeq}{\triangleq}
+\newcommand{\Uni}{\mathcal{U}}
+\newcommand{\Unit}{\mathsf{Unit}}
+\newcommand{\unit}{\mathsf{tt}}
+\newcommand{\var}[1]{\mathbf{x}_{\color{Black} #1}}
+\newcommand{\emp}{()}
+\newcommand{\pow}[1]{\mathcal{P}(#1)}
+\newcommand{\Term}{\mathbf{Term}}
+\newcommand{\Type}{\mathbf{Type}}
+\newcommand{\Val}{\mathbf{Val}}
+\newcommand{\Cxt}{\mathbf{Cxt}}
+\newcommand{\pto}{\rightharpoonup}
+\newcommand{\mto}{\xrightarrow{\mathsf{mon}}}
+\newcommand{\isctx}[1]{\fmttm{#1}\vdash}
+\newcommand{\isterm}[3]{\fmttm{#1}\vdash\fmttm{#2}:\fmttm{#3}}
+\newcommand{\eqterm}[4]{\fmttm{#1} \vdash \fmttm{#2} \equiv \fmttm{#3} : \fmttm{#4}}
+\newcommand{\istype}[2]{\fmttm{#1}\vdash\fmttm{#2}}
+\newcommand{\eqtype}[3]{\fmttm{#1}\vdash\fmttm{#2} \equiv \fmttm{#3}}
+\newcommand{\subst}[3]{{\color{Black} \fmttm{#1}\{\fmttm{#2}/#3\}}}
+\newcommand{\weaken}[2]{{\color{Black} \fmttm{#1}\{\uparrow^{#2}\}}}
+\newcommand{\app}[2]{{\color{Black} \fmttm{#1}(\fmttm{#2})}}|
+\newcommand{\nf}[2]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2})}}
+
+\title{Normalization by Evaluation for \\Martin-L{\"of} Type Theory}
+\author{Daniel Gratzer}
+\date{\today}
+
+\begin{document}
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Goal}
+
+  Produce a function $\nf{t}{A} : \Term \times \Term \pto \Term$ so that the following 3 conditions
+  hold:
+  \begin{enumerate}
+  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{t_1}{A} = \nf{t_2}{A}$
+  \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{t}{A}}{A}$
+  \item If $\isterm{\Gamma}{t}{A}$ then $\nf{t}{A}$ is a \emph{normal form}\\ -- more on this shortly.
+  \end{enumerate}
+  \pause
+  \centering
+  \emph{N.B. is partial as $\Term$ contains ill-typed terms.}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why Bother}
+  \centering
+  Why bother to do this when it's so much easier to not do things?
+  \bigskip
+  \begin{enumerate}
+  \item Termination, canonicity, consistency are corollaries
+  \item Decidability of type-checking\\
+    \pause
+    This because of the \emph{conversion rule}:
+    \[
+      \inferrule{
+        \eqtype{\Gamma}{A}{B}\\
+        \isterm{\Gamma}{t}{A}
+      }{
+        \isterm{\Gamma}{t}{B}
+      }
+    \]
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why Normalization by Evaluation (NbE)?}
+  Techniques for proving normalization abound, why NbE?
+  \begin{enumerate}
+  \item Scales to support many languages
+    \begin{itemize}
+    \item full dependent types
+    \item proof irrelevant types
+    \item impredicative quantification
+    \item sized types
+    \item (conjectured) guarded dependent type theory
+    \item (conjectured) cubical type theory.
+    \end{itemize}
+  \item Amenable to formalization in a (stronger) type theory
+  \item Practical for implementation*
+  \item Principled semantic interpretation
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Language}
+  \begin{mathpar}
+    \inferrule{ }{\isctx{\emp}}\and
+    \inferrule{
+      \isctx{\Gamma}\\
+      \istype{\Gamma}{A}
+    }{\isctx{\Gamma.A}}\\
+    \inferrule{
+      \istype{\Gamma}{A}\\
+      \istype{\Gamma.A}{B}
+    }{\istype{\Gamma}{A \to B}}\and
+    \inferrule{
+      \isctx{\Gamma}
+    }{\istype{\Gamma}{\Unit} \\ \istype{\Gamma}{\Uni}}\and
+    \inferrule{
+      \isterm{\Gamma}{A}{\Uni}
+    }{\istype{\Gamma}{A}}\\
+    \inferrule{
+      \isctx{\Gamma}
+    }{
+      \isterm{\Gamma}{\Unit}{\Uni}\\
+      \isterm{\Gamma}{\unit}{\Unit}
+    }\and
+    \inferrule{
+      \istype{\Gamma}{A}\\
+      \isterm{\Gamma.A}{t}{B}
+    }{\isterm{\Gamma}{\lambda t}{A \to B}}\and
+    \inferrule{
+      \isterm{\Gamma}{t}{A \to B}\\
+      \isterm{\Gamma}{u}{A}
+    }{\isterm{\Gamma}{\app{t}{u}}{\subst{B}{u}{0}}}\and
+    \inferrule{
+      \isctx{\Gamma}
+    }{\isterm{\Gamma}{\var{n}}{\weaken{\color{Black} \fmttm{\Gamma}(n)}{n}}}
+  \end{mathpar}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conventions}
+  We use De Bruijn indices for representing binding. This simplifies things with NbE later.
+  \begin{align*}
+    \weaken{t}{i} &\quad \text{``Increment every variable in $t$ by $i$''}\\
+    \subst{t}{u}{i} &\quad \text{``Replace $\fmttm{\var{i}}$ with $\fmttm{u}$ in $\fmttm{t}$, adjust variables''}
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Wrinkle}
+  The rule which causes so much pain.
+  \[
+    \inferrule{
+      \isterm{\Gamma}{t}{A}\\
+      \eqtype{\Gamma}{A}{B}
+    }{
+      \isterm{\Gamma}{t}{B}
+    }
+  \]
+  Dependence means term equality matters for type equality.
+  \[
+    \inferrule{
+      \eqterm{\Gamma}{A}{B}{\Uni}
+    }{\eqtype{\Gamma}{A}{B}}
+  \]
+\end{frame}
+\begin{frame}
+  \frametitle{The Wrinkle -- The Main Equality Rules}
+  \begin{mathpar}
+    \inferrule{
+      \isterm{\Gamma}{u}{A}\\
+      \isterm{\Gamma.A}{t}{B}
+    }{\eqterm{\Gamma}{\app{\color{Black}(\fmttm{\lambda t})}{u}}{\subst{t}{u}{0}}{\subst{B}{u}{0}}}\and
+    \inferrule{
+      \istype{\Gamma}{A}\\
+      \isterm{\Gamma.A}{t}{B}
+    }{\eqterm{\Gamma}{\lambda \color{\Black}(\app{\weaken{t}{1}}{\var{0}})}{t}{A \to B}}\and
+    \inferrule{
+      \isterm{\Gamma}{t}{\Unit}
+    }{\eqterm{\Gamma}{t}{\unit}{\Unit}}
+  \end{mathpar}
+\end{frame}
+
+\end{document}
