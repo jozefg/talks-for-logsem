@@ -32,7 +32,8 @@
 \newcommand{\Uni}{\mathcal{U}}
 \newcommand{\Unit}{\mathsf{Unit}}
 \newcommand{\unit}{\mathsf{tt}}
-\newcommand{\var}[1]{\mathbf{x}_{\color{Black} #1}}
+\newcommand{\var}[1]{\fmttm{\mathbf{x}_{\color{Black} #1}}}
+\newcommand{\nevar}[1]{\fmtne{\mathbf{x}_{\color{Black} #1}}}
 \newcommand{\emp}{()}
 \newcommand{\pow}[1]{\mathcal{P}(#1)}
 \newcommand{\Term}{\mathbf{Term}}
@@ -43,12 +44,15 @@
 \newcommand{\mto}{\xrightarrow{\mathsf{mon}}}
 \newcommand{\isctx}[1]{\fmttm{#1}\vdash}
 \newcommand{\isterm}[3]{\fmttm{#1}\vdash\fmttm{#2}:\fmttm{#3}}
+\newcommand{\isneutral}[3]{\fmttm{#1}\vdash^{\mathsf{neu}}\fmtne{#2}:\fmttm{#3}}
+\newcommand{\isnormal}[3]{\fmttm{#1}\vdash^{\mathsf{nf}}\fmtnf{#2}:\fmttm{#3}}
 \newcommand{\eqterm}[4]{\fmttm{#1} \vdash \fmttm{#2} \equiv \fmttm{#3} : \fmttm{#4}}
 \newcommand{\istype}[2]{\fmttm{#1}\vdash\fmttm{#2}}
 \newcommand{\eqtype}[3]{\fmttm{#1}\vdash\fmttm{#2} \equiv \fmttm{#3}}
 \newcommand{\subst}[3]{{\color{Black} \fmttm{#1}\{\fmttm{#2}/#3\}}}
 \newcommand{\weaken}[2]{{\color{Black} \fmttm{#1}\{\uparrow^{#2}\}}}
-\newcommand{\app}[2]{{\color{Black} \fmttm{#1}(\fmttm{#2})}}|
+\newcommand{\app}[2]{{\color{Black} \fmttm{#1}(\fmttm{#2})}}
+\newcommand{\neapp}[2]{{\color{Black} \fmtne{#1}(\fmtnf{#2})}}
 \newcommand{\nf}[2]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2})}}
 
 \title{Normalization by Evaluation for \\Martin-L{\"of} Type Theory}
@@ -186,15 +190,84 @@
     \inferrule{
       \isterm{\Gamma}{u}{A}\\
       \isterm{\Gamma.A}{t}{B}
-    }{\eqterm{\Gamma}{\app{\color{Black}(\fmttm{\lambda t})}{u}}{\subst{t}{u}{0}}{\subst{B}{u}{0}}}\and
+    }{\eqterm{\Gamma}{\app{\color{Black}(\fmttm{\lambda t})}{u}}{\subst{t}{u}{0}}{\subst{B}{u}{0}}}\\
     \inferrule{
       \istype{\Gamma}{A}\\
       \isterm{\Gamma.A}{t}{B}
-    }{\eqterm{\Gamma}{\lambda \color{\Black}(\app{\weaken{t}{1}}{\var{0}})}{t}{A \to B}}\and
+    }{\eqterm{\Gamma}{\lambda \color{Black}(\app{\weaken{t}{1}}{\var{0}})}{t}{A \to B}}\\
     \inferrule{
       \isterm{\Gamma}{t}{\Unit}
     }{\eqterm{\Gamma}{t}{\unit}{\Unit}}
   \end{mathpar}
 \end{frame}
+
+\begin{frame}
+  \frametitle{Neutral and Normal Forms}
+  Let us isolate special terms which are \emph{canonical} for their equivalence classes. Though this
+  can only be observed later.
+
+  \begin{enumerate}
+  \item Neutral terms: variables or terms stuck on variables.
+  \item Normal forms: terms in $\beta$-normal and $\eta$-long forms.
+  \end{enumerate}
+  \begin{mathpar}
+    \inferrule{
+      \isterm{\Gamma}{\var{n}}{A}
+    }{\isneutral{\Gamma}{\nevar{n}}{A}}\and
+    \inferrule{
+      \isneutral{\Gamma}{e}{A \to B}\\
+      \isnormal{\Gamma}{v}{A}
+    }{\isneutral{\Gamma}{\neapp{e}{v}}{\subst{B}{v}{0}}}\\
+    \inferrule{
+      \isctx{\Gamma}
+    }{
+      \isnormal{\Gamma}{\unit}{\Unit}
+    }\and
+    \inferrule{
+      \istype{\Gamma}{A}\\
+      \isnormal{\Gamma.A}{t}{B}
+    }{\isnormal{\Gamma}{\lambda t}{A \to B}}\and
+    \inferrule{
+      \isnormal{\Gamma}{A}{\Uni}\\
+      \isnormal{\Gamma.A}{B}{\Uni}
+    }{\isnormal{\Gamma}{A \to B}{\Uni}}\and
+    \inferrule{
+      \isneutral{\Gamma}{e}{\Uni}
+    }{\isnormal{\Gamma}{e}{\Uni}}\and
+  \end{mathpar}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Normalization by Evaluation}
+  \centering
+  Now we have a goal, construct $\isnormal{\Gamma}{\nf{t}{A}}{A}$ given $\isterm{\Gamma}{t}{A}$.
+\end{frame}
+\begin{frame}
+  \frametitle{Normalization by Evaluation -- Historical Context}
+  \begin{centering}
+    Original idea: normalize programs using the ambient semantic universe.
+  \end{centering}
+  \pause
+  \bigskip
+
+  For instance, to evaluate simple types, convert each function to the host languages function and
+  then convert back.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Intrinsic Normalization by Evaluation -- An Example}
+
+\end{frame}
+  % \begin{centering}
+  %   We will design a domain of \emph{semantic values}. In older presentations of NbE
+  % \end{centering}
+  % \bigskip
+
+  % \pause
+  % Overview of our approach:
+  % \begin{enumerate}
+  % \item Take a term, $\fmttm{t}$, and \emph{evaluate} it into a semantic value, $\fmtval{v}$
+  % \item Quote this semantic value, $\fmtval{v}$, back into a syntactic term, $\fmttm{t'}$
+  % \end{enumerate}
 
 \end{document}
