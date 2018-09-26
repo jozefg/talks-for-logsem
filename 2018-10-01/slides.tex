@@ -1,5 +1,6 @@
 \documentclass[svgnames]{beamer}
 \usepackage{mathpartir, stmaryrd}
+\usepackage{ulem}
 \usepackage{wasysym}
 \usepackage{listings}
 \usepackage{multicol}
@@ -64,6 +65,7 @@
 \newcommand{\app}[2]{{\color{Black} \fmttm{#1}(\fmttm{#2})}}
 \newcommand{\neapp}[2]{{\color{Black} \fmtne{#1}(\fmtnf{#2})}}
 \newcommand{\nf}[3]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2}, \fmttm{#3})}}
+\newcommand{\nftype}[3]{{\color{Black} \mathsf{nf\_type}(\fmttm{#1}, \fmttm{#2})}}
 
 \newcommand{\gpheval}[3]{\fmtval{#1}\models\fmttm{#2}\Downarrow\fmtval{#3}}
 \newcommand{\gphinst}[3]{\fmtclo{#1}[\fmtval{#2}]\rightsquigarrow\fmtval{#3}}
@@ -342,7 +344,7 @@
   \frametitle{A Syntactic Semantic Domain -- Neutrals}
   \fmtne{Neutral elements} represent computations which are stuck on some variable.
   \[
-    \fmtne{e} ::= \vvar{n} \mid \vapp{e}{\vnf{A}{v}}
+    \fmtne{e} ::= \vvar{\ell} \mid \vapp{e}{\vnf{A}{v}}
   \]
   \bigskip
 
@@ -385,7 +387,7 @@
     \begin{array}{lcl}
       \fmtval{v}, \fmtval{A} & ::= & \vlam{f} \mid \vunit \mid \vUnit \mid \vuni \mid \vpi{A_1}{F} \mid \vup{A}{e}\\
       \fmtclo{f}, \fmtclo{F} & ::= & \mkclo{t}{\rho}\\
-      \fmtne{e} & ::= & \vvar{n} \mid \vapp{e}{v}\\
+      \fmtne{e} & ::= & \vvar{\ell} \mid \vapp{e}{v}\\
       \fmtnf{n} & ::= & \vnf{A}{v}\\
       \fmtval{\rho} & ::= & \cdot \mid \fmtval{\rho}.\fmtval{v}
     \end{array}
@@ -444,6 +446,131 @@
 
 \begin{frame}
   \frametitle{The Algorithm -- Defining Evaluation}
+  The evaluation judgment is defined by inspection on $\fmttm{t}$.
 
+  \begin{mathpar}
+    \inferrule{ }{\gpheval{\rho}{\var{n}}{\rho(n)}}\and
+    \inferrule{ }{\gpheval{\rho}{\unit}{\vunit}}\and
+    \inferrule{ }{\gpheval{\rho}{\Unit}{\vUnit}}\and
+    \inferrule{ }{\gpheval{\rho}{\Uni}{\vuni}}\and
+    \inferrule{ }{\gpheval{\rho}{\lambda t}{\vlam{\mkclo{t}{\rho}}}}\and
+    \inferrule{
+      \gpheval{\rho}{T_1}{A}
+    }{\gpheval{\rho}{T_1 \to T_2}{\vpi{A}{\mkclo{T_2}{\rho}}}}\and
+  \end{mathpar}
+  \pause
+  What about the only construct in our language that computes?
 \end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm -- Defining Evaluation}
+  Application uses an auxiliary relation: $\gphapp{v_1}{v_2}{v}$.
+  \begin{mathpar}
+    \inferrule{
+      \gpheval{\rho.a}{t}{v}
+    }{\gphapp{\vlam{\mkclo{t}{\rho}}}{a}{v}}\and
+    \inferrule{
+      \gpheval{\rho.a}{T}{B}
+    }{\gphapp{\vup{\vpi{A}{\mkclo{T}{\rho}}}{e}}{a}{\vup{B}{\vapp{e}{\vnf{A}{a}}}}}\\
+    \inferrule{
+      \gpheval{\rho}{t}{v_1}\\
+      \gpheval{\rho}{u}{v_2}\\
+      \gphapp{v_1}{v_2}{v}
+    }{\gpheval{\rho}{t(u)}{v}}
+  \end{mathpar}
+
+  Rule of thumb:\\
+  \centering
+  each eliminator gets an auxiliary judgment to either perform $\beta$-reduction or
+  construct a new neutral.
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm -- Defining Quotation}
+  In order to define $\gphquonf{c}{n}{t}$ we need to define two other forms of quotation:
+  \begin{itemize}
+  \item $\gphquotp{c}{v}{T}$ -- quotation of \fmtval{semantic types}.\\
+  \item $\gphquone{c}{e}{t}$ -- quotation of \fmtne{neutrals}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm -- Defining Quotation}
+  Quotation for \fmtnf{normals} proceeds by casing on the \fmtval{type}.
+  \begin{mathpar}
+    \inferrule{
+      \gphapp{v}{\vup{A}{\vvar{c}}}{b}\\
+      \gpheval{\rho.\vvar{c}}{T}{B}\\
+      \gphquonf{c + 1}{\vnf{B}{b}}{t}
+    }{
+      \gphquonf{c}{\vnf{\vpi{A}{\mkclo{T}{\rho}}}{v}}{\lambda t}
+    }
+    \and
+    \inferrule{ }{
+      \gphquonf{c}{\vnf{\vUnit}{v}}{\unit}
+    }
+    \\
+    \inferrule{ }{\gphquonf{c}{\vnf{\vuni}{\vUnit}}{\Unit}}
+    \and
+    \inferrule{
+      \gphquonf{c}{\vnf{\vuni}{A}}{T_1}\\
+      \gpheval{\rho.\vvar{c}}{T}{B}\\
+      \gphquonf{c + 1}{\vnf{\vuni}{B}}{T_2}
+    }{\gphquonf{c}{\vnf{\vuni}{\vpi{A}{\mkclo{T}{\rho}}}}{T_1 \to T_2}}\and
+    \inferrule{
+      \gphquone{c}{e}{t}
+    }{\gphquonf{c}{\vnf{-}{\vup{-}{e}}}{t}}
+  \end{mathpar}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm -- Defining Quotation}
+  Quotation for \fmtne{neutrals} proceeds by casing on the \fmtne{neutral} itself.
+  \begin{mathpar}
+    \inferrule{ }{
+      \gphquonf{c}{\vvar{\ell}}{\var{c - (\ell + 1)}}
+    }
+    \and
+    \inferrule{
+      \gphquone{c}{e}{t_1}\\
+      \gphquonf{c}{n}{t_2}
+    }{
+      \gphquone{c}{\vapp{e}{n}}{t_1(t_2)}
+    }
+  \end{mathpar}
+  \pause
+  Quotation for \fmtval{types} likewise proceed by casing on the \fmtval{type}.
+  \begin{mathpar}
+    \inferrule{ }{\gphquotp{c}{\vUnit}{\Unit}}
+    \and
+    \inferrule{ }{\gphquotp{c}{\vuni}{\Uni}}
+    \and
+    \inferrule{
+      \gphquotp{c}{A}{T_1}\\
+      \gpheval{\rho.\vvar{c}}{T}{B}\\
+      \gphquotp{c + 1}{B}{T_2}
+    }{\gphquotp{c}{\vpi{A}{\mkclo{T}{\rho}}}{T_1 \to T_2}}\and
+    \inferrule{
+      \gphquone{c}{e}{t}
+    }{\gphquotp{c}{\vup{-}{e}}{t}}
+  \end{mathpar}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Final Step}
+  \begin{enumerate}
+  \item \sout{Evaluate a \fmttm{term} to a \fmtval{value} in some \fmttm{environment}}
+  \item \sout{Quote a \fmtnf{normal form} back to a \fmttm{term} in a context of length $c$.}
+  \item Inject/reflect a \fmttm{term context} into an \fmtval{environment}.
+  \end{enumerate}
+  \pause
+  \begin{mathpar}
+    \inferrule{ }{\gphreflectcxt{\emp}{\cdot}}\and
+    \inferrule{
+      \gphreflectcxt{\Gamma}{\rho}\\
+      \gpheval{\rho}{T}{A}\\
+    }{\gphreflectcxt{\Gamma.T}{\rho.\vup{A}{\vvar{\cxtlen{\Gamma}}}}}\and
+  \end{mathpar}
+\end{frame}
+
 \end{document}
