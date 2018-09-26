@@ -20,7 +20,7 @@
 \setbeamercolor{example text}{fg=CobaltBlue}
 \setbeamertemplate{itemize items}{$\bullet$}
 
-\newcommand\cxlen[1]{\vert\fmttm{#1}\vert}
+\newcommand\cxtlen[1]{\vert\fmttm{#1}\vert}
 \newcommand\fmttm[1]{{\color{Blue}#1}}
 \newcommand\fmtval[1]{{\color{Red}#1}}
 \newcommand\fmtne[1]{{\color{DarkOrange}#1}}
@@ -29,9 +29,19 @@
 
 \newcommand{\bnfeq}{::=}
 \newcommand{\defeq}{\triangleq}
-\newcommand{\Uni}{\mathcal{U}}
-\newcommand{\Unit}{\mathsf{Unit}}
-\newcommand{\unit}{\mathsf{tt}}
+\newcommand{\Uni}{\fmttm{\mathcal{U}}}
+\newcommand{\Unit}{\fmttm{\mathsf{Unit}}}
+\newcommand{\unit}{\fmttm{\mathsf{tt}}}
+\newcommand{\vUnit}{\fmtval{\mathsf{Unit}}}
+\newcommand{\vunit}{\fmtval{\mathsf{tt}}}
+\newcommand{\vuni}{\fmtval{\mathsf{Uni}}}
+\newcommand{\vpi}[2]{\fmtval{\Pi\,\fmtval{#1}{\color{Black} .}\ \fmtclo{#2}}}
+\newcommand{\mkclo}[2]{{\color{Black} \fmttm{#1}\{\fmtval{#2}\}}}
+\newcommand{\vvar}[1]{{\color{Black} \fmtne{\mathbf{x}}_{#1}}}
+\newcommand{\vlam}[1]{\fmtval{\lambda{\color{Black} .}\ \fmtclo{#1}}}
+\newcommand{\vapp}[2]{{\color{Black} \fmtne{\mathsf{app}}(\fmtne{#1}, \fmtnf{#2})}}
+\newcommand{\vup}[2]{{\color{Black} \uparrow^{\fmtval{#1}} \fmtne{#2}}}
+\newcommand{\vnf}[2]{{\color{Black} \downarrow^{\fmtval{#1}} \fmtval{#2}}}
 \newcommand{\var}[1]{\fmttm{\mathbf{x}_{\color{Black} #1}}}
 \newcommand{\nevar}[1]{\fmtne{\mathbf{x}_{\color{Black} #1}}}
 \newcommand{\emp}{()}
@@ -53,7 +63,15 @@
 \newcommand{\weaken}[2]{{\color{Black} \fmttm{#1}\{\uparrow^{#2}\}}}
 \newcommand{\app}[2]{{\color{Black} \fmttm{#1}(\fmttm{#2})}}
 \newcommand{\neapp}[2]{{\color{Black} \fmtne{#1}(\fmtnf{#2})}}
-\newcommand{\nf}[2]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2})}}
+\newcommand{\nf}[3]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2}, \fmttm{#3})}}
+
+\newcommand{\gpheval}[3]{\fmtval{#1}\models\fmttm{#2}\Downarrow\fmtval{#3}}
+\newcommand{\gphinst}[3]{\fmtclo{#1}[\fmtval{#2}]\rightsquigarrow\fmtval{#3}}
+\newcommand{\gphapp}[3]{\fmtval{#1}\mathbin{@}\fmtval{#2}\rightsquigarrow\fmtval{#3}}
+\newcommand{\gphquone}[3]{#1\Vdash\fmtne{#2}\Uparrow\fmttm{#3}}
+\newcommand{\gphquotp}[3]{#1\Vdash\fmtval{#2}\Uparrow\fmttm{#3}}
+\newcommand{\gphquonf}[3]{#1\Vdash\fmtnf{#2}\Uparrow\fmttm{#3}}
+\newcommand{\gphreflectcxt}[2]{{\uparrow}\fmttm{#1}\rightsquigarrow\fmtval{#2}}
 
 \title{Normalization by Evaluation for \\Martin-L{\"of} Type Theory}
 \author{Daniel Gratzer}
@@ -67,12 +85,12 @@
 \begin{frame}
   \frametitle{Goal}
 
-  Produce a function $\nf{t}{A} : \Term \times \Term \pto \Term$ so that the following 3 conditions
+  Produce a function $\nf{\Gamma}{t}{A} : \Cxt \times \Term \times \Type \pto \Term$ so that the following 3 conditions
   hold:
   \begin{enumerate}
-  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{t_1}{A} = \nf{t_2}{A}$
-  \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{t}{A}}{A}$
-  \item If $\isterm{\Gamma}{t}{A}$ then $\nf{t}{A}$ is a \emph{normal form}\\ -- more on this shortly.
+  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}$
+  \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{A}}{A}$
+  \item If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a \emph{normal form}\\ -- more on this shortly.
   \end{enumerate}
   \pause
   \centering
@@ -85,6 +103,8 @@
   Why bother to do this when it's so much easier to not do things?
   \bigskip
   \begin{enumerate}
+  \item Lars told me to prove normalization for a type theory
+    \pause
   \item Termination, canonicity, consistency are corollaries
   \item Decidability of type-checking\\
     \pause
@@ -97,6 +117,9 @@
         \isterm{\Gamma}{t}{B}
       }
     \]
+    \pause
+  \item Adequacy of logical frameworks depends on normalization
+  \item Completeness of focused proof strategies is equivalent
   \end{enumerate}
 \end{frame}
 
@@ -121,6 +144,16 @@
 
 \begin{frame}
   \frametitle{A Language}
+  We need to specify the language that we're going to normalize.
+
+  \pause
+  \bigskip
+
+  Sorry.
+\end{frame}
+\begin{frame}
+  \frametitle{A Language}
+
   \begin{mathpar}
     \inferrule{ }{\isctx{\emp}}\and
     \inferrule{
@@ -159,7 +192,8 @@
 
 \begin{frame}
   \frametitle{Conventions}
-  We use De Bruijn indices for representing binding. This simplifies things with NbE later.
+  We use De Bruijn indices ($\var{n}$ points to the $n$th closest binder) for representing
+  binding.
   \begin{align*}
     \weaken{t}{i} &\quad \text{``Increment every variable in $t$ by $i$''}\\
     \subst{t}{u}{i} &\quad \text{``Replace $\fmttm{\var{i}}$ with $\fmttm{u}$ in $\fmttm{t}$, adjust variables''}
@@ -240,34 +274,176 @@
 \begin{frame}
   \frametitle{Normalization by Evaluation}
   \centering
-  Now we have a goal, construct $\isnormal{\Gamma}{\nf{t}{A}}{A}$ given $\isterm{\Gamma}{t}{A}$.
+  Now we have a goal, construct $\isnormal{\Gamma}{\nf{\Gamma}{t}{A}}{A}$ given $\isterm{\Gamma}{t}{A}$.
 \end{frame}
 \begin{frame}
   \frametitle{Normalization by Evaluation -- Historical Context}
-  \begin{centering}
-    Original idea: normalize programs using the ambient semantic universe.
-  \end{centering}
-  \pause
+  \centering
+  Original idea:\\ \textbf{normalize programs using the ambient semantic universe.}
+
   \bigskip
 
-  For instance, to evaluate simple types, convert each function to the host languages function and
-  then convert back.
+  Latent in Martin-L\"of's original proofs of the decidability of typing.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Normalization by Evaluation -- Historical Context}
+  For instance, code up the following functions:
+\begin{lstlisting}
+  eval  : Term t -> t
+  quote : t -> Term t
+
+  normalize = quote . eval
+\end{lstlisting}
+  Done in Scheme for the simply-typed lambda calculus at first, adapted to other settings.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Normalization by Evaluation -- Historical Context}
+  \begin{centering}
+    To adapt to a proof use domains instead of a PL
+  \end{centering}
+  \[
+    D \cong (D \to D) \oplus (\mathbb{N} \cup \mathbb{V})_\bot
+  \]
+  Then define the following:
+  \[
+    \mathsf{eval} : \Term \to D \qquad \mathsf{quote} : D \pto \Term
+  \]
+  \pause
+  \bigskip
+  N.B. We have shifted from \emph{intrinsic} typing to \emph{extrensic} typing.
 \end{frame}
 
 \begin{frame}
-  \frametitle{Intrinsic Normalization by Evaluation -- An Example}
+  \frametitle{Normalization by Evaluation -- Historical Context}
+  These historical approaches are imperfect:
+  \begin{itemize}
+  \item Intrinsic typing proved intractable for impredicativity or dependent types.
+  \item Using domains adds unnecessary complexity and is far removed from implementations.
+  \item The direct ``reflect to the metatheory'' approach does not scale to extrensic types.
+  \end{itemize}
+
+  \pause
+  \bigskip
+
+  Modern NbE uses a different semantic model: syntax.
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Syntactic Semantic Domain}
+  Construct a syntax in which all expressions are canonical.
+  \bigskip
+
+  Divided between \fmtne{neutrals}, \fmtnf{normals}, \fmtval{values}, \fmtclo{closures}.
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Syntactic Semantic Domain -- Neutrals}
+  \fmtne{Neutral elements} represent computations which are stuck on some variable.
+  \[
+    \fmtne{e} ::= \vvar{n} \mid \vapp{e}{\vnf{A}{v}}
+  \]
+  \bigskip
+
+  N.B. The argument to $\vapp{e}{-}$ must be fully evaluated and annotated.
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Syntactic Semantic Domain -- Closures}
+  What happens when we go under a binder?
+
+  \pause
+  \bigskip
+
+  We choose to suspend evaluation and record the current state with a \fmtclo{closure}.
+  \[
+    \fmtclo{f} ::= \mkclo{t}{\rho}
+  \]
+  $\fmtval{\rho}$ is the \emph{environment} we're interpreting $\fmttm{t}$. This removes the need
+  for domains, is called \emph{defunctionalization}.
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Syntactic Semantic Domain -- Values}
+  It's difficult to isolate $\eta$-long forms for dependent type theory.
+
+  We settle for isolating $\beta$-normal forms for now.
+  \[
+    \fmtval{v}, \fmtval{A} ::=
+    \vlam{f} \mid \vunit \mid \vUnit \mid \vuni \mid \vpi{A}{F}
+    \only<2>{\mid \vup{A}{e}}
+  \]
+  \pause
+  Need to include \fmtne{neutrals} \emph{with} type information to allow $\eta$-expansions later.
 
 \end{frame}
-  % \begin{centering}
-  %   We will design a domain of \emph{semantic values}. In older presentations of NbE
-  % \end{centering}
-  % \bigskip
 
-  % \pause
-  % Overview of our approach:
-  % \begin{enumerate}
-  % \item Take a term, $\fmttm{t}$, and \emph{evaluate} it into a semantic value, $\fmtval{v}$
-  % \item Quote this semantic value, $\fmtval{v}$, back into a syntactic term, $\fmttm{t'}$
-  % \end{enumerate}
+\begin{frame}
+  \frametitle{A Syntactic Semantic Domain}
+  \[
+    \begin{array}{lcl}
+      \fmtval{v}, \fmtval{A} & ::= & \vlam{f} \mid \vunit \mid \vUnit \mid \vuni \mid \vpi{A_1}{F} \mid \vup{A}{e}\\
+      \fmtclo{f}, \fmtclo{F} & ::= & \mkclo{t}{\rho}\\
+      \fmtne{e} & ::= & \vvar{n} \mid \vapp{e}{v}\\
+      \fmtnf{n} & ::= & \vnf{A}{v}\\
+      \fmtval{\rho} & ::= & \cdot \mid \fmtval{\rho}.\fmtval{v}
+    \end{array}
+  \]
+\end{frame}
 
+\begin{frame}
+  \frametitle{Paying the Piper -- Typing Information}
+  The usage of $\vnf{A}{v}$ and $\vup{A}{e}$ seems very arbitrary. Why do we need typing
+  information?
+
+  \bigskip
+
+  \begin{itemize}
+  \item We need type information to know whether $\eta$-expansion is necessary now that we have
+    neutrals of all types.\\
+    \emph{In the domain-theoretic or intrinsic formulation this was baked in as we disallowed such neutrals.}
+    \pause
+  \item Coquand proposed adding $\vnf{A}{v}$ to mark a \fmtval{value} that should be $\eta$-expanded
+    at type $\fmtval{A}$ during quotation.
+  \item Quotation proceeds by casing on this type.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm}
+  Now that we have defined our sorts of terms, we can define the algorithm.
+  \begin{enumerate}
+  \item Evaluate a \fmttm{term} to a \fmtval{value} in some \fmtval{environment}
+    \[
+      \gpheval{\rho}{t}{v}
+    \]
+  \item Quote a \fmtnf{normal form} back to a \fmttm{term} in a context of length $c$.
+    \[
+      \gphquonf{c}{n}{t}
+    \]
+  \item Inject/reflect a \fmttm{term context} into an \fmtval{environment}.
+    \[
+      \gphreflectcxt{\Gamma}{\rho}
+    \]
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm}
+
+  \begin{align*}
+    \nf{\Gamma}{t}{T} = \fmttm{t'} &\iff\\
+    &\gphreflectcxt{\Gamma}{\rho} \land{}\\
+    &\gpheval{\rho}{t}{v} \land \gpheval{\rho}{T}{A} \land{}\\
+    &\gphquonf{\cxtlen{\Gamma}}{\vnf{A}{v}}{t'}
+  \end{align*}
+
+  The relational presentation is ideal for a constructive setting.
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm -- Defining Evaluation}
+
+\end{frame}
 \end{document}
