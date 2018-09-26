@@ -100,7 +100,7 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Why Bother}
+  \frametitle{Why Bother?}
   \centering
   Why bother to do this when it's so much easier to not do things?
   \bigskip
@@ -120,7 +120,7 @@
       }
     \]
     \pause
-  \item Adequacy of logical frameworks depends on normalization
+  \item Adequacy in logical frameworks depends on normalization
   \item Completeness of focused proof strategies is equivalent
   \end{enumerate}
 \end{frame}
@@ -145,7 +145,28 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Why Not X Instead?\footnote{for X $\neq$ NbE}}
+  \centering
+  The most common alternatives to NbE are based on rewriting:
+  \begin{itemize}
+  \item Define some relation $\to$ between \fmttm{terms}
+  \item a \fmttm{term} is normal when it cannot be reduced further with $\to$.
+  \item Use logical relations/reducibility candidates to show that $\to$ terminates for well-typed
+    \fmttm{terms}.
+  \end{itemize}
+  \pause
+  \textbf{Not all equalities make sense as reduction rules!}
+
+  \pause
+  \textbf{These proofs are extremely brittle!}
+
+  \pause
+  \textbf{Far from how we normalize terms in implementations.}
+\end{frame}
+
+\begin{frame}
   \frametitle{A Language}
+  \centering
   We need to specify the language that we're going to normalize.
 
   \pause
@@ -204,7 +225,7 @@
 
 \begin{frame}
   \frametitle{The Wrinkle}
-  The rule which causes so much pain.
+  We need the \emph{conversion rule} for any sort of type theory.
   \[
     \inferrule{
       \isterm{\Gamma}{t}{A}\\
@@ -228,8 +249,7 @@
       \isterm{\Gamma.A}{t}{B}
     }{\eqterm{\Gamma}{\app{\color{Black}(\fmttm{\lambda t})}{u}}{\subst{t}{u}{0}}{\subst{B}{u}{0}}}\\
     \inferrule{
-      \istype{\Gamma}{A}\\
-      \isterm{\Gamma.A}{t}{B}
+      \isterm{\Gamma}{t}{A \to B}
     }{\eqterm{\Gamma}{\lambda \color{Black}(\app{\weaken{t}{1}}{\var{0}})}{t}{A \to B}}\\
     \inferrule{
       \isterm{\Gamma}{t}{\Unit}
@@ -239,12 +259,11 @@
 
 \begin{frame}
   \frametitle{Neutral and Normal Forms}
-  Let us isolate special terms which are \emph{canonical} for their equivalence classes. Though this
-  can only be observed later.
+  Let us isolate special terms which will be \emph{canonical} for $\equiv$.
 
   \begin{enumerate}
-  \item Neutral terms: variables or terms stuck on variables.
-  \item Normal forms: terms in $\beta$-normal and $\eta$-long forms.
+  \item \fmtne{Neutral terms}: variables or \fmtnf{normals} stuck on variables.
+  \item \fmtnf{Normal forms}: \fmttm{terms} in $\beta$-normal and $\eta$-long forms.
   \end{enumerate}
   \begin{mathpar}
     \inferrule{
@@ -290,10 +309,10 @@
 
 \begin{frame}[fragile]
   \frametitle{Normalization by Evaluation -- Historical Context}
-  For instance, code up the following functions:
-\begin{lstlisting}
-  eval  : Term t -> t
-  quote : t -> Term t
+  Next found in implementation of Minlog:
+\begin{lstlisting}[mathescape=true]
+  eval  : Term t $\to$ t
+  quote : t $\to$ Term t
 
   normalize = quote . eval
 \end{lstlisting}
@@ -303,7 +322,7 @@
 \begin{frame}[fragile]
   \frametitle{Normalization by Evaluation -- Historical Context}
   \begin{centering}
-    To adapt to a proof use domains instead of a PL
+    To adapt to a proof people opted for domains instead of a PL
   \end{centering}
   \[
     D \cong (D \to D) \oplus (\mathbb{N} \cup \mathbb{V})_\bot
@@ -312,9 +331,6 @@
   \[
     \mathsf{eval} : \Term \to D \qquad \mathsf{quote} : D \pto \Term
   \]
-  \pause
-  \bigskip
-  N.B. We have shifted from \emph{intrinsic} typing to \emph{extrensic} typing.
 \end{frame}
 
 \begin{frame}
@@ -323,7 +339,7 @@
   \begin{itemize}
   \item Intrinsic typing proved intractable for impredicativity or dependent types.
   \item Using domains adds unnecessary complexity and is far removed from implementations.
-  \item The direct ``reflect to the metatheory'' approach does not scale to extrensic types.
+  \item The direct ``reflect to the metatheory'' approach does not scale to extrensic typing.
   \end{itemize}
 
   \pause
@@ -334,6 +350,7 @@
 
 \begin{frame}
   \frametitle{A Syntactic Semantic Domain}
+  \centering
   Construct a syntax in which all expressions are canonical.
   \bigskip
 
@@ -476,7 +493,7 @@
       \gpheval{\rho}{t}{v_1}\\
       \gpheval{\rho}{u}{v_2}\\
       \gphapp{v_1}{v_2}{v}
-    }{\gpheval{\rho}{t(u)}{v}}
+    }{\gpheval{\rho}{\app{t}{u}}{v}}
   \end{mathpar}
 
   Rule of thumb:\\
@@ -535,7 +552,7 @@
       \gphquone{c}{e}{t_1}\\
       \gphquonf{c}{n}{t_2}
     }{
-      \gphquone{c}{\vapp{e}{n}}{t_1(t_2)}
+      \gphquone{c}{\vapp{e}{n}}{\app{t_1}{t_2}}
     }
   \end{mathpar}
   \pause
