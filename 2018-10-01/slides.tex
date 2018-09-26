@@ -1,6 +1,6 @@
 \documentclass[svgnames]{beamer}
 \usepackage{mathpartir, stmaryrd}
-\usepackage{ulem}
+\usepackage[normalem]{ulem}
 \usepackage{wasysym}
 \usepackage{listings}
 \usepackage{multicol}
@@ -76,8 +76,9 @@
 \newcommand{\gphquotp}[3]{#1\Vdash\fmtval{#2}\Uparrow\fmttm{#3}}
 \newcommand{\gphquonf}[3]{#1\Vdash\fmtnf{#2}\Uparrow\fmttm{#3}}
 \newcommand{\gphreflectcxt}[2]{{\uparrow}\fmttm{#1}\rightsquigarrow\fmtval{#2}}
-
-\title{Normalization by Evaluation for \\Martin-L{\"of} Type Theory}
+\newcommand{\logtm}[5]{\fmttm{#1} \models \fmttm{#2} : \fmttm{#3} \mathop{\circledR} \fmtval{#4} \in \fmtval{#5}}
+\title{\texorpdfstring{Normalization by Evaluation for \\Martin-L{\"of} Type Theory}%
+  {Normalization by Evaluation for Martin-L\"of Type Theory}}
 \author{Daniel Gratzer}
 \date{\today}
 
@@ -96,9 +97,6 @@
   \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{A}}{A}$
   \item If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a \emph{normal form}\\ -- more on this shortly.
   \end{enumerate}
-  \pause
-  \centering
-  \emph{N.B. is partial as $\Term$ contains ill-typed terms.}
 \end{frame}
 
 \begin{frame}
@@ -649,4 +647,40 @@
   the fundamental lemma + neutral-normal yoga = completeness
 \end{frame}
 
+\begin{frame}
+  \frametitle{Soundness}
+  To prove if $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{A}}{A}$ we construct
+  a logical relation!
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Soundness -- the logical relation}
+  \centering
+  We define some relation $\logtm{\Gamma}{t}{T}{v}{A}$.
+
+  \pause
+  \[
+    \logtm{\Gamma}{t}{T}{v}{A} \implies
+    \exists t'.\ \left(\gphquonf{\cxtlen{\Gamma}}{\vnf{v}{A}}{t'}\right) \land \left(\eqterm{\Gamma}{t}{t'}{T}\right)
+  \]
+\end{frame}
+
+\begin{frame}
+  \frametitle{Dependent Types Complicates Things}
+  \begin{itemize}
+  \item Defining the PER model for completeness requires either induction-recursion or Allen-style
+    spines.
+  \item The logical-relation is well-founded only with respect to an ordering on \fmtval{semantic
+      types}.
+  \item All type constructions must be done relationally to account for universes.\\
+    e.g., $\sem{\fmtval{A}}$ must be $\sem{\fmtval{A} = \fmtval{B}}$
+  \end{itemize}
+  \pause
+
+  Happy to discuss these issues offline.
+  \pause
+
+  Thanks.
+\end{frame}
 \end{document}
