@@ -28,6 +28,7 @@
 \newcommand\fmtnf[1]{{\color{Purple}#1}}
 \newcommand\fmtclo[1]{{\color{Green}#1}}
 
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
 \newcommand{\bnfeq}{::=}
 \newcommand{\defeq}{\triangleq}
 \newcommand{\Uni}{\fmttm{\mathcal{U}}}
@@ -65,8 +66,9 @@
 \newcommand{\app}[2]{{\color{Black} \fmttm{#1}(\fmttm{#2})}}
 \newcommand{\neapp}[2]{{\color{Black} \fmtne{#1}(\fmtnf{#2})}}
 \newcommand{\nf}[3]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2}, \fmttm{#3})}}
-\newcommand{\nftype}[3]{{\color{Black} \mathsf{nf\_type}(\fmttm{#1}, \fmttm{#2})}}
 
+\newcommand{\Nf}{\mathcal{N}\!f}
+\newcommand{\Ne}{\mathcal{N}e}
 \newcommand{\gpheval}[3]{\fmtval{#1}\models\fmttm{#2}\Downarrow\fmtval{#3}}
 \newcommand{\gphinst}[3]{\fmtclo{#1}[\fmtval{#2}]\rightsquigarrow\fmtval{#3}}
 \newcommand{\gphapp}[3]{\fmtval{#1}\mathbin{@}\fmtval{#2}\rightsquigarrow\fmtval{#3}}
@@ -571,6 +573,80 @@
       \gpheval{\rho}{T}{A}\\
     }{\gphreflectcxt{\Gamma.T}{\rho.\vup{A}{\vvar{\cxtlen{\Gamma}}}}}\and
   \end{mathpar}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Why is This Correct?}
+
+  Now we have to prove some stuff.
+  \begin{enumerate}
+  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}$
+  \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{A}}{A}$
+  \item \only<1>{If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a normal form}
+    \only<2>{\sout{If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a normal form}}\\
+    \only<2>{Can now prove this by induction!}
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Completeness}
+  \[
+    \eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}
+  \]
+  Proof intuition: build a PER model!
+  \begin{itemize}
+  \item Each type $\fmtval{A}$ is associated with a PER of \fmtval{values}: $\sem{\fmtval{A}} = R$.
+  \item Each PER satisfies the \emph{neutral-normal yoga}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Completeness -- Neutral-normal yoga}
+  Fix two distinguished PERs:
+  \begin{align*}
+    \Nf &= \{(\fmtnf{n_1}, \fmtnf{n_2}) \mid \forall m.\ \exists \fmttm{t}.\ \gphquonf{m}{n_1}{t} \land \gphquonf{m}{n_2}{t}\}\\
+    \Ne &= \{(\fmtne{e_1}, \fmtne{e_2}) \mid \forall m.\ \exists \fmttm{t}.\ \gphquone{m}{e_1}{t} \land \gphquone{m}{e_2}{t}\}\\
+  \end{align*}
+  For each $R = \sem{\fmtval{A}}$ we require that $R$ is sandwiched between these two PERs.
+  \begin{gather*}
+    \{(\vup{A}{e_1}, \vup{A}{e_2}) \mid (\fmtne{e_1}, \fmtne{e_2}) \in \Ne\}\\
+    {}\subseteq R \subseteq\\
+    \{(\fmtval{v_1}, \fmtval{v_2}) \mid (\vnf{A}{v_1}, \vnf{A}{v_2}) \in \Nf\}
+  \end{gather*}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Completeness -- The fundamental lemma}
+  We can define a notion of related environments
+  $\fmtval{\rho_1} = \fmtval{\rho_2} \in \sem{\fmttm{\Gamma}}$.
+
+  \begin{enumerate}
+  \item If $\eqterm{\Gamma}{t_1}{t_2}{T}$ then for all
+    $\fmtval{\rho_1} = \fmtval{\rho_2} \in \sem{\fmttm{\Gamma}}$ the following holds.
+    \begin{itemize}
+    \item $\gpheval{\rho_1}{t_1}{v_1}$
+    \item $\gpheval{\rho_2}{t_2}{v_2}$
+    \item $\gpheval{\rho_1}{T}{A}$
+    \item $\sem{\fmtval{A}} = R$
+    \item $(\fmtval{v_1}, \fmtval{v_2}) \in R$
+    \end{itemize}
+  \item If $\eqtype{\Gamma}{T_1}{T_2}$ then for all
+    $\fmtval{\rho_1} = \fmtval{\rho_2} \in \sem{\fmttm{\Gamma}}$ the following holds.
+    \begin{itemize}
+    \item $\gpheval{\rho_1}{T_1}{A_1}$
+    \item $\gpheval{\rho_2}{T_2}{A_2}$
+    \item $\sem{\fmtval{A_1}} = \sem{\fmtval{A_2}} = R$
+    \item $\forall m.\ \exists \fmttm{T}.\ \gphquotp{m}{A_1}{T} \land \gphquotp{m}{A_2}{T}$
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Completeness}
+  \centering
+  the fundamental lemma + neutral-normal yoga = completeness
 \end{frame}
 
 \end{document}
