@@ -68,7 +68,7 @@
 \newcommand{\nf}[3]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2}, \fmttm{#3})}}
 
 \newcommand{\Nf}{\mathcal{N}\!f}
-\newcommand{\Ne}{\mathcal{N}e}
+\newcommand{\Ne}{\mathcal{N}\!e}
 \newcommand{\gpheval}[3]{\fmtval{#1}\models\fmttm{#2}\Downarrow\fmtval{#3}}
 \newcommand{\gphinst}[3]{\fmtclo{#1}[\fmtval{#2}]\rightsquigarrow\fmtval{#3}}
 \newcommand{\gphapp}[3]{\fmtval{#1}\mathbin{@}\fmtval{#2}\rightsquigarrow\fmtval{#3}}
@@ -93,7 +93,7 @@
   Produce a function $\nf{\Gamma}{t}{A} : \Cxt \times \Term \times \Type \pto \Term$ so that the following 3 conditions
   hold:
   \begin{enumerate}
-  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}$
+  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \implies \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}$
   \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{A}}{A}$
   \item If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a \emph{normal form}\\ -- more on this shortly.
   \end{enumerate}
@@ -454,7 +454,7 @@
   \begin{align*}
     \nf{\Gamma}{t}{T} = \fmttm{t'} &\iff\\
     &\gphreflectcxt{\Gamma}{\rho} \land{}\\
-    &\gpheval{\rho}{t}{v} \land \gpheval{\rho}{T}{A} \land{}\\
+    &\left(\gpheval{\rho}{t}{v}\right) \land \left(\gpheval{\rho}{T}{A}\right) \land{}\\
     &\gphquonf{\cxtlen{\Gamma}}{\vnf{A}{v}}{t'}
   \end{align*}
 
@@ -595,7 +595,7 @@
 
   Now we have to prove some stuff.
   \begin{enumerate}
-  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}$
+  \item $\eqterm{\Gamma}{t_1}{t_2}{A} \implies \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}$
   \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{A}}{A}$
   \item \only<1>{If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a normal form}
     \only<2>{\sout{If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a normal form}}\\
@@ -607,7 +607,7 @@
 \begin{frame}
   \frametitle{Completeness}
   \[
-    \eqterm{\Gamma}{t_1}{t_2}{A} \iff \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}
+    \eqterm{\Gamma}{t_1}{t_2}{A} \implies \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}
   \]
   Proof intuition: build a PER model!
   \begin{itemize}
