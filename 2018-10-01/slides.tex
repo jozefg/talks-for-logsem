@@ -45,7 +45,7 @@
 \newcommand{\vup}[2]{{\color{Black} \uparrow^{\fmtval{#1}} \fmtne{#2}}}
 \newcommand{\vnf}[2]{{\color{Black} \downarrow^{\fmtval{#1}} \fmtval{#2}}}
 \newcommand{\var}[1]{\fmttm{\mathbf{x}_{\color{Black} #1}}}
-\newcommand{\nevar}[1]{\fmtne{\mathbf{x}_{\color{Black} #1}}}
+\newcommand{\nevar}[1]{\fmtne{\mathbf{x}_{\color{Black} 0}}\color{Black} \{\fmtne{\uparrow}^{#1}\}}
 \newcommand{\emp}{()}
 \newcommand{\pow}[1]{\mathcal{P}(#1)}
 \newcommand{\Term}{\mathbf{Term}}
@@ -56,13 +56,14 @@
 \newcommand{\mto}{\xrightarrow{\mathsf{mon}}}
 \newcommand{\isctx}[1]{\fmttm{#1}\vdash}
 \newcommand{\isterm}[3]{\fmttm{#1}\vdash\fmttm{#2}:\fmttm{#3}}
+\newcommand{\issubst}[3]{\fmttm{#1}\vdash\fmttm{#2}:\fmttm{#3}}
 \newcommand{\isneutral}[3]{\fmttm{#1}\vdash^{\mathsf{neu}}\fmtne{#2}:\fmttm{#3}}
 \newcommand{\isnormal}[3]{\fmttm{#1}\vdash^{\mathsf{nf}}\fmtnf{#2}:\fmttm{#3}}
 \newcommand{\eqterm}[4]{\fmttm{#1} \vdash \fmttm{#2} \equiv \fmttm{#3} : \fmttm{#4}}
 \newcommand{\istype}[2]{\fmttm{#1}\vdash\fmttm{#2}}
 \newcommand{\eqtype}[3]{\fmttm{#1}\vdash\fmttm{#2} \equiv \fmttm{#3}}
-\newcommand{\subst}[3]{{\color{Black} \fmttm{#1}\{\fmttm{#2}/#3\}}}
-\newcommand{\weaken}[2]{{\color{Black} \fmttm{#1}\{\uparrow^{#2}\}}}
+\newcommand{\apsubst}[2]{\color{Black} \fmttm{#1}\{\fmttm{#2}\}}
+\newcommand{\weaken}[1]{\uparrow^{\color{Black}#1}}
 \newcommand{\app}[2]{{\color{Black} \fmttm{#1}(\fmttm{#2})}}
 \newcommand{\neapp}[2]{{\color{Black} \fmtne{#1}(\fmtnf{#2})}}
 \newcommand{\nf}[3]{{\color{Black} \mathsf{nf}(\fmttm{#1}, \fmttm{#2}, \fmttm{#3})}}
@@ -70,6 +71,7 @@
 \newcommand{\Nf}{\mathcal{N}\!f}
 \newcommand{\Ne}{\mathcal{N}\!e}
 \newcommand{\gpheval}[3]{\fmtval{#1}\models\fmttm{#2}\Downarrow\fmtval{#3}}
+\newcommand{\gphevalsb}[3]{\fmtval{#1}\models\fmttm{#2}\Downarrow\fmtval{#3}}
 \newcommand{\gphinst}[3]{\fmtclo{#1}[\fmtval{#2}]\rightsquigarrow\fmtval{#3}}
 \newcommand{\gphapp}[3]{\fmtval{#1}\mathbin{@}\fmtval{#2}\rightsquigarrow\fmtval{#3}}
 \newcommand{\gphquone}[3]{#1\Vdash\fmtne{#2}\Uparrow\fmttm{#3}}
@@ -109,7 +111,6 @@
     \pause
   \item Termination, canonicity, consistency are corollaries
   \item Decidability of type-checking\\
-    \pause
     This because of the \emph{conversion rule}:
     \[
       \inferrule{
@@ -119,9 +120,9 @@
         \isterm{\Gamma}{t}{B}
       }
     \]
-    \pause
   \item Adequacy in logical frameworks depends on normalization
   \item Completeness of focused proof strategies is equivalent
+  \item Coherence theorems are normalization theorems in disguise
   \end{enumerate}
 \end{frame}
 
@@ -132,10 +133,10 @@
   \item Scales to support many languages
     \begin{itemize}
     \item full dependent types
-    \item proof irrelevant types
+    \item proof-irrelevant types
     \item impredicative quantification
     \item sized types
-    \item (conjectured) guarded dependent type theory
+    \item (conjectured) fitch-style guarded dependent type theory
     \item (conjectured) cubical type theory.
     \end{itemize}
   \item Amenable to formalization in a (stronger) type theory
@@ -175,8 +176,64 @@
   Sorry.
 \end{frame}
 \begin{frame}
-  \frametitle{A Language}
+  \frametitle{The Main Judgments}
+  Our type theory is divided into various judgments:
+  \[
+    \begin{array}{cc}
+      \isctx{\Gamma} & \text{$\fmttm{\Gamma}$ is a valid context}\\
+      \istype{\Gamma}{T} & \text{In context $\fmttm{\Gamma}$, $\fmttm{T}$ is a type}\\
+      \isterm{\Gamma}{t}{T} & \text{In context $\fmttm{\Gamma}$, $\fmttm{t}$ has type $\fmttm{T}$}
+    \end{array}
+  \]
+  \pause
+  Corresponding equality judgments: $\eqterm{\Gamma}{t_1}{t_2}{T}$.
+\end{frame}
+\begin{frame}
+  \frametitle{Explicit Substitutions}
+  We use \emph{explicit substitutions}, $\issubst{\Gamma}{\sigma}{\Delta}$, in our type theory:
+  \begin{mathpar}
+    \inferrule{
+      \isctx{\Gamma}
+    }{
+      \issubst{\Gamma}{\cdot}{\emp}\\
+      \issubst{\Gamma}{1}{\Gamma}
+    }
+    \and
+    \inferrule{
+      \istype{\Gamma}{T}
+    }{
+      \issubst{\Gamma.T}{\weaken{1}}{\Gamma}
+    }
+    \and
+    \inferrule{
+      \issubst{\Gamma}{\sigma_1}{\Delta}\\
+      \issubst{\Delta}{\sigma_2}{\Xi}
+    }{
+      \issubst{\Gamma}{\sigma_2 \circ \sigma_1}{\Xi}
+    }
+    \and
+    \inferrule{
+      \issubst{\Gamma}{\sigma}{\Delta}\\
+      \istype{\Delta}{T}\\
+      \isterm{\Gamma}{t}{\apsubst{T}{\sigma}}
+    }{
+      \issubst{\Gamma}{\sigma.t}{\Delta.T}
+    }
+  \end{mathpar}
+  Crucial rule:
+  \[
+    \inferrule{
+      \isterm{\Gamma}{t}{T}\\
+      \issubst{\Delta}{\sigma}{\Gamma}
+    }{
+      \isterm{\Delta}{\apsubst{t}{\sigma}}{\apsubst{T}{\sigma}}
+    }
+  \]
+\end{frame}
 
+\begin{frame}
+  \frametitle{A Language}
+  The rules for types and contexts:
   \begin{mathpar}
     \inferrule{ }{\isctx{\emp}}\and
     \inferrule{
@@ -192,12 +249,25 @@
     }{\istype{\Gamma}{\Unit} \\ \istype{\Gamma}{\Uni}}\and
     \inferrule{
       \isterm{\Gamma}{A}{\Uni}
-    }{\istype{\Gamma}{A}}\\
+    }{\istype{\Gamma}{A}}
+  \end{mathpar}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Language}
+  The rules for terms:
+  \begin{mathpar}
     \inferrule{
       \isctx{\Gamma}
     }{
       \isterm{\Gamma}{\Unit}{\Uni}\\
       \isterm{\Gamma}{\unit}{\Unit}
+    }\and
+    \inferrule{
+      \isterm{\Gamma}{A}{\Uni}\\
+      \isterm{\Gamma.A}{B}{\Uni}
+    }{
+      \isterm{\Gamma}{A \to B}{\Uni}
     }\and
     \inferrule{
       \istype{\Gamma}{A}\\
@@ -206,21 +276,11 @@
     \inferrule{
       \isterm{\Gamma}{t}{A \to B}\\
       \isterm{\Gamma}{u}{A}
-    }{\isterm{\Gamma}{\app{t}{u}}{\subst{B}{u}{0}}}\and
+    }{\isterm{\Gamma}{\app{t}{u}}{\apsubst{B}{1.u}}}\and
     \inferrule{
-      \isctx{\Gamma}
-    }{\isterm{\Gamma}{\var{n}}{\weaken{\color{Black} \fmttm{\Gamma}(n)}{n}}}
+      \istype{\Gamma}{T}
+    }{\isterm{\Gamma.T}{\var{0}}{\apsubst{T}{\weaken{1}}}}
   \end{mathpar}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Conventions}
-  We use De Bruijn indices ($\var{n}$ points to the $n$th closest binder) for representing
-  binding.
-  \begin{align*}
-    \weaken{t}{i} &\quad \text{``Increment every variable in $t$ by $i$''}\\
-    \subst{t}{u}{i} &\quad \text{``Replace $\fmttm{\var{i}}$ with $\fmttm{u}$ in $\fmttm{t}$, adjust variables''}
-  \end{align*}
 \end{frame}
 
 \begin{frame}
@@ -247,10 +307,10 @@
     \inferrule{
       \isterm{\Gamma}{u}{A}\\
       \isterm{\Gamma.A}{t}{B}
-    }{\eqterm{\Gamma}{\app{\color{Black}(\fmttm{\lambda t})}{u}}{\subst{t}{u}{0}}{\subst{B}{u}{0}}}\\
+    }{\eqterm{\Gamma}{\app{\color{Black}(\fmttm{\lambda t})}{u}}{\apsubst{t}{1.u}}{\apsubst{B}{1.u}}}\\
     \inferrule{
       \isterm{\Gamma}{t}{A \to B}
-    }{\eqterm{\Gamma}{\lambda \color{Black}(\app{\weaken{t}{1}}{\var{0}})}{t}{A \to B}}\\
+    }{\eqterm{\Gamma}{\lambda \color{Black}(\app{\apsubst{t}{\weaken{1}}}{\var{0}})}{t}{A \to B}}\\
     \inferrule{
       \isterm{\Gamma}{t}{\Unit}
     }{\eqterm{\Gamma}{t}{\unit}{\Unit}}
@@ -267,12 +327,12 @@
   \end{enumerate}
   \begin{mathpar}
     \inferrule{
-      \isterm{\Gamma}{\var{n}}{A}
+      \isterm{\Gamma}{\apsubst{\var{0}}{\weaken{n}}}{A}
     }{\isneutral{\Gamma}{\nevar{n}}{A}}\and
     \inferrule{
       \isneutral{\Gamma}{e}{A \to B}\\
       \isnormal{\Gamma}{v}{A}
-    }{\isneutral{\Gamma}{\neapp{e}{v}}{\subst{B}{v}{0}}}\\
+    }{\isneutral{\Gamma}{\neapp{e}{v}}{\apsubst{B}{1.v}}}\\
     \inferrule{
       \isctx{\Gamma}
     }{
@@ -466,7 +526,7 @@
   The evaluation judgment is defined by inspection on $\fmttm{t}$.
 
   \begin{mathpar}
-    \inferrule{ }{\gpheval{\rho}{\var{n}}{\rho(n)}}\and
+    \inferrule{ }{\gpheval{\rho.v}{\var{0}}{v}}\and
     \inferrule{ }{\gpheval{\rho}{\unit}{\vunit}}\and
     \inferrule{ }{\gpheval{\rho}{\Unit}{\vUnit}}\and
     \inferrule{ }{\gpheval{\rho}{\Uni}{\vuni}}\and
@@ -500,6 +560,39 @@
   \centering
   each eliminator gets an auxiliary judgment to either perform $\beta$-reduction or
   construct a new neutral.
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Algorithm -- Defining Evaluation}
+  We use a judgment so that \fmttm{syntactic substitutions} produce new \fmtval{semantic
+    environments}.
+
+  \begin{mathpar}
+    \inferrule{ }{\gphevalsb{\rho}{1}{\rho}}\and
+    \inferrule{ }{\gphevalsb{\rho.v}{\weaken{1}}{\rho}}\and
+    \inferrule{
+      \gphevalsb{\rho_1}{\sigma_1}{\rho_2}\\
+      \gphevalsb{\rho_2}{\sigma_2}{\rho_3}
+    }{
+      \gphevalsb{\rho_1}{\sigma_2 \circ \sigma_1}{\rho_3}
+    }\and
+    \inferrule{
+      \gphevalsb{\rho_1}{\sigma}{\rho_2}\\
+      \gpheval{\rho_2}{t}{v}
+    }{
+      \gpheval{\rho_1}{\sigma.t}{\rho_2.v}
+    }
+  \end{mathpar}
+  \pause
+  Using this, we can interpret $\apsubst{t}{\sigma}$:
+  \[
+    \inferrule{
+      \gphevalsb{\rho}{\sigma}{\rho'}\\
+      \gpheval{\rho'}{t}{v}
+    }{
+      \gpheval{\rho}{\apsubst{t}{\sigma}}{v}
+    }
+  \]
 \end{frame}
 
 \begin{frame}
@@ -545,7 +638,7 @@
   Quotation for \fmtne{neutrals} proceeds by casing on the \fmtne{neutral} itself.
   \begin{mathpar}
     \inferrule{ }{
-      \gphquonf{c}{\vvar{\ell}}{\var{c - (\ell + 1)}}
+      \gphquonf{c}{\vvar{\ell}}{\apsubst{\var{0}}{\weaken{c - (\ell + 1)}}}
     }
     \and
     \inferrule{
@@ -631,7 +724,6 @@
   \end{gather*}
 \end{frame}
 
-
 \begin{frame}
   \frametitle{Completeness -- The fundamental lemma}
   We can define a notion of related environments
@@ -659,6 +751,27 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Completeness -- explicit substitutions}
+  Without explicit substitutions, the fundamental lemma is doomed: no $\beta$ rules will hold!
+  \pause
+
+  Let us suppose that $\gpheval{\rho}{u}{v_a}$:
+  \begin{align*}
+    \gpheval{\rho}{\app{\color{Black} (\fmttm{\lambda t})}{u}}{v} &\iff\\
+    \gphapp{\color{Black} (\vlam{\mkclo{t}{\rho}})}{v_a}{v} &\iff\\
+    \gpheval{\rho.v_a}{t}{v} &\iff\\
+    \gpheval{\rho}{\apsubst{t}{1.u}}{v}
+  \end{align*}
+  With implicit substitutions this last step fails!
+
+  \pause
+
+  I learned this Saturday afternoon. Whoops.
+\end{frame}
+
+
+
+\begin{frame}
   \frametitle{Completeness}
   \centering
   the fundamental lemma + neutral-normal yoga = completeness
@@ -679,7 +792,7 @@
   \pause
   \[
     \logtm{\Gamma}{t}{T}{v}{A} \implies
-    \exists t'.\ \left(\gphquonf{\cxtlen{\Gamma}}{\vnf{v}{A}}{t'}\right) \land \left(\eqterm{\Gamma}{t}{t'}{T}\right)
+    \exists \fmttm{t'}.\ \left(\gphquonf{\cxtlen{\Gamma}}{\vnf{v}{A}}{t'}\right) \land \left(\eqterm{\Gamma}{t}{t'}{T}\right)
   \]
 \end{frame}
 
