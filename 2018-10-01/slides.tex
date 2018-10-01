@@ -21,10 +21,10 @@
 \setbeamercolor{example text}{fg=CobaltBlue}
 \setbeamertemplate{itemize items}{$\bullet$}
 
-\newcommand\cxtlen[1]{\vert\fmttm{#1}\vert}
+\newcommand\ctxlen[1]{\vert\fmttm{#1}\vert}
 \newcommand\fmttm[1]{{\color{Blue}#1}}
 \newcommand\fmtval[1]{{\color{Red}#1}}
-\newcommand\fmtne[1]{{\color{DarkOrange}#1}}
+\newcommand\fmtne[1]{{\color{Sienna}#1}}
 \newcommand\fmtnf[1]{{\color{Purple}#1}}
 \newcommand\fmtclo[1]{{\color{Green}#1}}
 
@@ -32,8 +32,8 @@
 \newcommand{\bnfeq}{::=}
 \newcommand{\defeq}{\triangleq}
 \newcommand{\Uni}{\fmttm{\mathcal{U}}}
-\newcommand{\Unit}{\fmttm{\mathsf{Unit}}}
-\newcommand{\unit}{\fmttm{\mathsf{tt}}}
+\newcommand{\Unit}{\mathsf{Unit}}
+\newcommand{\unit}{\mathsf{tt}}
 \newcommand{\vUnit}{\fmtval{\mathsf{Unit}}}
 \newcommand{\vunit}{\fmtval{\mathsf{tt}}}
 \newcommand{\vuni}{\fmtval{\mathsf{Uni}}}
@@ -42,16 +42,16 @@
 \newcommand{\vvar}[1]{{\color{Black} \fmtne{\mathbf{x}}_{#1}}}
 \newcommand{\vlam}[1]{\fmtval{\lambda{\color{Black} .}\ \fmtclo{#1}}}
 \newcommand{\vapp}[2]{{\color{Black} \fmtne{\mathsf{app}}(\fmtne{#1}, \fmtnf{#2})}}
-\newcommand{\vup}[2]{{\color{Black} \uparrow^{\fmtval{#1}} \fmtne{#2}}}
-\newcommand{\vnf}[2]{{\color{Black} \downarrow^{\fmtval{#1}} \fmtval{#2}}}
+\newcommand{\vup}[2]{{\fmtne{\uparrow^{\fmtval{#1}} \fmtne{#2}}}}
+\newcommand{\vnf}[2]{{\fmtnf{\downarrow^{\fmtval{#1}} \fmtval{#2}}}}
 \newcommand{\var}[1]{\fmttm{\mathbf{x}_{\color{Black} #1}}}
-\newcommand{\nevar}[1]{\fmtne{\mathbf{x}_{\color{Black} 0}}\color{Black} \{\fmtne{\uparrow}^{#1}\}}
+\newcommand{\nevar}[1]{\fmtne{\mathbf{x}_{\color{Black} #1}}}
 \newcommand{\emp}{()}
 \newcommand{\pow}[1]{\mathcal{P}(#1)}
 \newcommand{\Term}{\mathbf{Term}}
 \newcommand{\Type}{\mathbf{Type}}
 \newcommand{\Val}{\mathbf{Val}}
-\newcommand{\Cxt}{\mathbf{Cxt}}
+\newcommand{\Ctx}{\mathbf{Ctx}}
 \newcommand{\pto}{\rightharpoonup}
 \newcommand{\mto}{\xrightarrow{\mathsf{mon}}}
 \newcommand{\isctx}[1]{\fmttm{#1}\vdash}
@@ -77,8 +77,10 @@
 \newcommand{\gphquone}[3]{#1\Vdash\fmtne{#2}\Uparrow\fmttm{#3}}
 \newcommand{\gphquotp}[3]{#1\Vdash\fmtval{#2}\Uparrow\fmttm{#3}}
 \newcommand{\gphquonf}[3]{#1\Vdash\fmtnf{#2}\Uparrow\fmttm{#3}}
-\newcommand{\gphreflectcxt}[2]{{\uparrow}\fmttm{#1}\rightsquigarrow\fmtval{#2}}
+\newcommand{\gphreflectctx}[2]{{\uparrow}\fmttm{#1}\rightsquigarrow\fmtval{#2}}
 \newcommand{\logtm}[5]{\fmttm{#1} \models \fmttm{#2} : \fmttm{#3} \mathop{\circledR} \fmtval{#4} \in \fmtval{#5}}
+\newcommand{\logenv}[4]{\fmttm{#1} \models \fmttm{#2} : \fmttm{#3} \mathop{\circledR} \fmtval{#4}}
+
 \title{\texorpdfstring{Normalization by Evaluation for \\Martin-L{\"of} Type Theory}%
   {Normalization by Evaluation for Martin-L\"of Type Theory}}
 \author{Daniel Gratzer}
@@ -92,7 +94,7 @@
 \begin{frame}
   \frametitle{Goal}
 
-  Produce a function $\nf{\Gamma}{t}{A} : \Cxt \times \Term \times \Type \pto \Term$ so that the following 3 conditions
+  Produce a function $\nf{\Gamma}{t}{A} : \Ctx \times \Term \times \Type \pto \Term$ so that the following 3 conditions
   hold:
   \begin{enumerate}
   \item $\eqterm{\Gamma}{t_1}{t_2}{A} \implies \nf{\Gamma}{t_1}{A} = \nf{\Gamma}{t_2}{A}$
@@ -146,11 +148,22 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{What Semantic Interpretation?}
+  \centering
+  It's too much to discuss today, Jon \& Bas have a paper though.
+  \bigskip
+  \pause
+
+  \includegraphics[width=0.4\linewidth]{photo.jpg}
+\end{frame}
+
+
+\begin{frame}
   \frametitle{Why Not X Instead?\footnote{for X $\neq$ NbE}}
   \centering
   The most common alternatives to NbE are based on rewriting:
   \begin{itemize}
-  \item Define some relation $\to$ between \fmttm{terms}
+  \item Define some relation $\to$ (\emph{steps to}) between \fmttm{terms}
   \item a \fmttm{term} is normal when it cannot be reduced further with $\to$.
   \item Use logical relations/reducibility candidates to show that $\to$ terminates for well-typed
     \fmttm{terms}.
@@ -162,18 +175,13 @@
   \textbf{These proofs are extremely brittle!}
 
   \pause
-  \textbf{Far from how we normalize terms in implementations.}
+  \textbf{Entangles questions of reduction strategy!}
 \end{frame}
 
 \begin{frame}
   \frametitle{A Language}
   \centering
   We need to specify the language that we're going to normalize.
-
-  \pause
-  \bigskip
-
-  Sorry.
 \end{frame}
 \begin{frame}
   \frametitle{The Main Judgments}
@@ -246,7 +254,10 @@
     }{\istype{\Gamma}{A \to B}}\and
     \inferrule{
       \isctx{\Gamma}
-    }{\istype{\Gamma}{\Unit} \\ \istype{\Gamma}{\Uni}}\and
+    }{\istype{\Gamma}{\Unit}}\and
+    \inferrule{
+      \isctx{\Gamma}
+    }{\istype{\Gamma}{\Uni}}\and
     \inferrule{
       \isterm{\Gamma}{A}{\Uni}
     }{\istype{\Gamma}{A}}
@@ -278,8 +289,9 @@
       \isterm{\Gamma}{u}{A}
     }{\isterm{\Gamma}{\app{t}{u}}{\apsubst{B}{1.u}}}\and
     \inferrule{
-      \istype{\Gamma}{T}
-    }{\isterm{\Gamma.T}{\var{0}}{\apsubst{T}{\weaken{1}}}}
+      \isctx{\Gamma_1.T.\Gamma_2}\\
+      \ctxlen{\Gamma_2} = k
+    }{\isterm{\Gamma_1.T.\Gamma_2}{\var{k}}{\apsubst{T}{\weaken{k + 1}}}}
   \end{mathpar}
 \end{frame}
 
@@ -327,16 +339,18 @@
   \end{enumerate}
   \begin{mathpar}
     \inferrule{
-      \isterm{\Gamma}{\apsubst{\var{0}}{\weaken{n}}}{A}
+      \isterm{\Gamma}{\var{n}}{A}
     }{\isneutral{\Gamma}{\nevar{n}}{A}}\and
     \inferrule{
       \isneutral{\Gamma}{e}{A \to B}\\
       \isnormal{\Gamma}{v}{A}
     }{\isneutral{\Gamma}{\neapp{e}{v}}{\apsubst{B}{1.v}}}\\
+    \pause
     \inferrule{
       \isctx{\Gamma}
     }{
-      \isnormal{\Gamma}{\unit}{\Unit}
+      \isnormal{\Gamma}{\unit}{\Unit}\\
+      \isnormal{\Gamma}{\Unit}{\Uni}
     }\and
     \inferrule{
       \istype{\Gamma}{A}\\
@@ -367,15 +381,15 @@
   Latent in Martin-L\"of's original proofs of the decidability of typing.
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}
   \frametitle{Normalization by Evaluation -- Historical Context}
   Next found in implementation of Minlog:
-\begin{lstlisting}[mathescape=true]
-  eval  : Term t $\to$ t
-  quote : t $\to$ Term t
-
-  normalize = quote . eval
-\end{lstlisting}
+  \begin{align*}
+    \mathtt{eval}  &: (\mathtt{Term}\ \mathtt{t}) \to \mathtt{t}\\
+    \mathtt{quote} &: \mathtt{t} \to (\mathtt{Term}\ \mathtt{t})\\
+    \\
+    \mathtt{normalize} &= \mathtt{quote}\ .\ \mathtt{eval}
+  \end{align*}
   Done in Scheme for the simply-typed lambda calculus at first, adapted to other settings.
 \end{frame}
 
@@ -405,7 +419,7 @@
   \pause
   \bigskip
 
-  Many presentations of NbE now use a different semantic model: syntax.
+  Many presentations now use a different semantic model: syntax.
 \end{frame}
 
 \begin{frame}
@@ -503,7 +517,7 @@
     \]
   \item Inject/reflect a \fmttm{term context} into an \fmtval{environment}.
     \[
-      \gphreflectcxt{\Gamma}{\rho}
+      \gphreflectctx{\Gamma}{\rho}
     \]
   \end{enumerate}
 \end{frame}
@@ -513,9 +527,9 @@
 
   \begin{align*}
     \nf{\Gamma}{t}{T} = \fmttm{t'} &\iff\\
-    &\gphreflectcxt{\Gamma}{\rho} \land{}\\
+    &\gphreflectctx{\Gamma}{\rho} \land{}\\
     &\left(\gpheval{\rho}{t}{v}\right) \land \left(\gpheval{\rho}{T}{A}\right) \land{}\\
-    &\gphquonf{\cxtlen{\Gamma}}{\vnf{A}{v}}{t'}
+    &\gphquonf{\ctxlen{\Gamma}}{\vnf{A}{v}}{t'}
   \end{align*}
 
   The relational presentation is ideal for a constructive setting.
@@ -675,11 +689,11 @@
   \end{enumerate}
   \pause
   \begin{mathpar}
-    \inferrule{ }{\gphreflectcxt{\emp}{\cdot}}\and
+    \inferrule{ }{\gphreflectctx{\emp}{\cdot}}\and
     \inferrule{
-      \gphreflectcxt{\Gamma}{\rho}\\
+      \gphreflectctx{\Gamma}{\rho}\\
       \gpheval{\rho}{T}{A}\\
-    }{\gphreflectcxt{\Gamma.T}{\rho.\vup{A}{\vvar{\cxtlen{\Gamma}}}}}\and
+    }{\gphreflectctx{\Gamma.T}{\rho.\vup{A}{\vvar{\ctxlen{\Gamma}}}}}\and
   \end{mathpar}
 \end{frame}
 
@@ -692,7 +706,8 @@
   \item If $\isterm{\Gamma}{t}{A}$ then $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{A}}{A}$
   \item \only<1>{If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a normal form}
     \only<2>{\sout{If $\isterm{\Gamma}{t}{A}$ then $\nf{\Gamma}{t}{A}$ is a normal form}}\\
-    \only<2>{Can now prove this by induction!}
+    \pause
+    Can now prove this by induction!
   \end{enumerate}
 \end{frame}
 
@@ -714,7 +729,7 @@
   Fix two distinguished PERs:
   \begin{align*}
     \Nf &= \{(\fmtnf{n_1}, \fmtnf{n_2}) \mid \forall m.\ \exists \fmttm{t}.\ \gphquonf{m}{n_1}{t} \land \gphquonf{m}{n_2}{t}\}\\
-    \Ne &= \{(\fmtne{e_1}, \fmtne{e_2}) \mid \forall m.\ \exists \fmttm{t}.\ \gphquone{m}{e_1}{t} \land \gphquone{m}{e_2}{t}\}\\
+    \Ne &= \{(\fmtne{e_1}, \fmtne{e_2})\ \mid \forall m.\ \exists \fmttm{t}.\ \gphquone{m}{e_1}{t} \land \gphquone{m}{e_2}{t}\}\\
   \end{align*}
   For each $R = \sem{\fmtval{A}}$ we require that $R$ is sandwiched between these two PERs.
   \begin{gather*}
@@ -760,6 +775,7 @@
     \gpheval{\rho}{\app{\color{Black} (\fmttm{\lambda t})}{u}}{v} &\iff\\
     \gphapp{\color{Black} (\vlam{\mkclo{t}{\rho}})}{v_a}{v} &\iff\\
     \gpheval{\rho.v_a}{t}{v} &\iff\\
+    (\gphevalsb{\rho}{1.u}{\rho.v_a}) \land (\gpheval{\rho.v_a}{t}{v}) &\iff\\
     \gpheval{\rho}{\apsubst{t}{1.u}}{v}
   \end{align*}
   With implicit substitutions this last step fails!
@@ -792,8 +808,28 @@
   \pause
   \[
     \logtm{\Gamma}{t}{T}{v}{A} \implies
-    \exists \fmttm{t'}.\ \left(\gphquonf{\cxtlen{\Gamma}}{\vnf{A}{v}}{t'}\right) \land \left(\eqterm{\Gamma}{t}{t'}{T}\right)
+    \exists \fmttm{t'}.\ \left(\gphquonf{\ctxlen{\Gamma}}{\vnf{A}{v}}{t'}\right) \land \left(\eqterm{\Gamma}{t}{t'}{T}\right)
   \]
+\end{frame}
+
+\begin{frame}
+  \frametitle{Soundness -- the fundamental lemma}
+  \centering
+  We can extend the logical relation to substitutions: $\logenv{\Gamma}{\sigma}{\Gamma}{\rho}$.
+
+  \begin{itemize}
+  \item If $\isterm{\Gamma}{t}{T}$
+  \item for any $\fmttm{\sigma}$ and $\fmtval{\rho}$ such that
+    $\logenv{\Delta}{\sigma}{\Gamma}{\rho}$
+  \item for any $\fmtval{v}$ and $\fmtval{A}$ such that $\gpheval{\rho}{t}{v}$ and
+    $\gpheval{\rho}{T}{A}$
+    \pause
+  \item $\logtm{\Delta}{\apsubst{t}{\sigma}}{\apsubst{T}{\sigma}}{v}{A}$
+  \end{itemize}
+  \pause
+  \bigskip
+
+  If this holds then $\isterm{\Gamma}{t}{T}$ implies $\eqterm{\Gamma}{t}{\nf{\Gamma}{t}{T}}{T}$
 \end{frame}
 
 \begin{frame}
