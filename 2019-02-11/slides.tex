@@ -1,0 +1,69 @@
+\documentclass[usenames,dvipsnames,aspectratio=169,12pt]{beamer}
+\usepackage{tikz}
+\usetikzlibrary{tikzmark,positioning}
+\usepackage[customcolors]{hf-tikz}
+\usepackage{natbib}
+\usepackage{bibentry}
+\usepackage{microtype, times}
+\usepackage{amsmath, amssymb, mathpartir, stmaryrd}
+\usepackage{wasysym}
+\usepackage{textcomp}
+\usepackage[normalem]{ulem}
+\usepackage{listings}
+
+\usefonttheme[onlymath]{serif}
+\definecolor{JadeGreen}{RGB}{0,168,107}
+\definecolor{MunsellPurple}{RGB}{159,0,197}
+\definecolor{LightGrey}{gray}{0.9}
+\definecolor{CobaltBlue}{RGB}{0,71,171}
+\definecolor{FireBrick}{RGB}{228,34,23}
+\definecolor{Alabaster}{RGB}{250,250,250}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \raisebox{7pt}{\makebox[\paperwidth]{\hfill\makebox[10pt]{\scriptsize\insertframenumber}\quad}}}
+\setbeamertemplate{headline}{}
+\setbeamercolor{example text}{fg=CobaltBlue}
+\setbeamertemplate{itemize items}{$\bullet$}
+
+\title{An Overview of Guarded Type Theory}
+\author{Daniel Gratzer}
+\date{\today}
+
+\begin{document}
+\begin{frame}[noframenumbering]
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Problem}
+  \begin{itemize}
+  \item Not all programs terminate!
+  \item Allowing unrestricted non-termination destroys our reasoning principles.
+  \item Is there a middle ground that let's us talk about interesting programs?
+  \end{itemize}
+
+  \pause
+  \bigskip
+
+  Guarded recursion is a tool for isolating a particular class of programs.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Coinduction in Type Theory}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{A Modality for Recursion}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Light Modality for Recursion}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Generalized Modality for Recursion}
+\end{frame}
+
+\end{document}
