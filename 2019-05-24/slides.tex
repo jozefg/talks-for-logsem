@@ -1,0 +1,163 @@
+\documentclass[usenames,dvipsnames,aspectratio=169,12pt]{beamer}
+\usepackage{tikz}
+\usetikzlibrary{tikzmark,positioning}
+\usepackage[customcolors]{hf-tikz}
+\usepackage{natbib}
+\usepackage{bibentry}
+\usepackage{microtype, times}
+\usepackage{amsmath, amssymb, mathpartir, stmaryrd}
+\usepackage{wasysym}
+\usepackage{textcomp}
+\usepackage[normalem]{ulem}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{xparse}
+
+\NewDocumentCommand{\Arr}{m m}{#1 \to #2}
+\NewDocumentCommand{\Fun}{m m}{\mathsf{fun}\, #1 \Rightarrow #2}
+\NewDocumentCommand{\App}{m m}{#1(#2)}
+\NewDocumentCommand{\Nat}{}{\mathsf{Nat}}
+\NewDocumentCommand{\Zero}{}{\mathsf{zero}}
+\NewDocumentCommand{\Succ}{m}{\mathsf{succ}(#1)}
+\NewDocumentCommand{\Vect}{m m}{\mathsf{Vec}(#1, #2)}
+\NewDocumentCommand{\Nil}{}{\mathsf{nil}}
+\NewDocumentCommand{\Cons}{m m}{#1 {:} #2}
+
+\usefonttheme[onlymath]{serif}
+\definecolor{JadeGreen}{RGB}{0,168,107}
+\definecolor{MunsellPurple}{RGB}{159,0,197}
+\definecolor{LightGrey}{gray}{0.9}
+\definecolor{CobaltBlue}{RGB}{0,71,171}
+\definecolor{FireBrick}{RGB}{228,34,23}
+\definecolor{Alabaster}{RGB}{250,250,250}
+
+\hfsetfillcolor{blue!15}
+\hfsetbordercolor{blue!15}
+\renewcommand<>{\hl}[2]{\only#3{\tikzmarkin{#2}}{#1}\only#3{\tikzmarkend{#2}}}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \raisebox{7pt}{\makebox[\paperwidth]{\hfill\makebox[10pt]{\scriptsize\insertframenumber}\quad}}}
+\setbeamertemplate{headline}{}
+\setbeamercolor{example text}{fg=CobaltBlue}
+\setbeamertemplate{itemize items}{$\bullet$}
+
+\title{Implementing a (Modal) Dependent Type Theory}
+\author{\textbf{Daniel Gratzer}\inst{1}\\%
+  Jonathan Sterling\inst{2} \and Lars Birkedal\inst{1}}
+\institute{\inst{1} This University \smiley{} \\ \inst{2} Not This University \frownie{}}
+\date{May 24 2019}
+
+\begin{document}
+\begin{frame}[noframenumbering]
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hello!}
+  First things first, the title of this talk is a lie.
+  \pause
+
+  \begin{itemize}
+  \item I don't want to talk about \emph{modal} dependent type theory.
+  \item I'd like to talk about the core idea behind this work.
+  \end{itemize}
+  \pause
+  \bigskip
+
+  An alternative title:
+  \begin{center}
+    \color{Blue}
+    \Large
+    Implementing type theory
+  \end{center}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Setting the Scene}
+
+  What is type theory? Type theory is a....
+  \only<1>{\setbeamercolor{itemize item}{fg=red}}
+  \begin{itemize}
+  \item well-behaved programming language with a rich type system.
+    \only<1>{\setbeamercolor{itemize item}{fg=CobaltBlue}}
+    \only<2>{\setbeamercolor{itemize item}{fg=red}}
+
+  \item framework for reasoning about mathematical objects.
+    \only<2>{\setbeamercolor{itemize item}{fg=CobaltBlue}}
+    \only<3>{\setbeamercolor{itemize item}{fg=red}}
+
+  \item foundation for mathematics.
+  \end{itemize}
+  \pause\pause\pause
+  \bigskip
+
+
+  Each viewpoint induces requirements on a good type theory is.
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Fundamental Tension}
+
+  We want a type theory which is suitable for
+
+  \begin{center}
+    \textcolor{Red}{studying mathematics}
+  \end{center}
+
+  but at the same time still serves as setting for
+
+  \begin{center}
+    \textcolor{Blue}{programming}
+  \end{center}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{A Concrete Issue}
+
+  Where does this tension manifest itself?
+
+  \begin{enumerate}
+  \item Types represent \textcolor{Red}{mathematical objects}
+  \item \textcolor{Blue}{Type-checking} must be implementable by a machine
+  \end{enumerate}
+
+  When should two terms or types be considered equal by the system?
+\end{frame}
+
+\begin{frame}
+  \frametitle{Some Background}
+  I'd like to explain this problem more precisely. First we need some types.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Two Standard Types}
+  Type theory has functions:
+  \[
+    \begin{array}{ccc}
+      \Arr{A}{B} & \Fun{x}{M} & \App{f}{a} \\
+      & \App{(\Fun{x}{x})}{M} = M &
+    \end{array}
+  \]
+
+  \bigskip
+
+  Type theory has natural numbers
+  \[
+    \Nat \quad \Zero \quad \Succ{N} \quad N * M \quad  N + M
+  \]
+\end{frame}
+
+\begin{frame}
+  \frametitle{A More Exotic Type}
+
+  Type theory also has \emph{length-indexed} lists: vectors.
+  \[
+    \Vect{A}{N} \quad \Nil \quad \Cons{M}{L}
+  \]
+
+\end{frame}
+
+\end{document}
