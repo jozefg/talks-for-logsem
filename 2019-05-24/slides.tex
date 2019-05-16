@@ -22,6 +22,7 @@
 \NewDocumentCommand{\Vect}{m m}{\mathsf{Vec}(#1, #2)}
 \NewDocumentCommand{\Nil}{}{\mathsf{nil}}
 \NewDocumentCommand{\Cons}{m m}{#1 {:} #2}
+\NewDocumentCommand{\Lang}{m}{\mathsf{#1}}
 
 \usefonttheme[onlymath]{serif}
 \definecolor{JadeGreen}{RGB}{0,168,107}
@@ -33,7 +34,6 @@
 
 \hfsetfillcolor{blue!15}
 \hfsetbordercolor{blue!15}
-\renewcommand<>{\hl}[2]{\only#3{\tikzmarkin{#2}}{#1}\only#3{\tikzmarkend{#2}}}
 
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}{%
@@ -94,7 +94,7 @@
   \bigskip
 
 
-  Each viewpoint induces requirements on a good type theory is.
+  Each viewpoint induces requirements on a good type theory.
 \end{frame}
 
 \begin{frame}
@@ -116,48 +116,98 @@
 
 \begin{frame}
   \frametitle{A Concrete Issue}
-
-  Where does this tension manifest itself?
-
-  \begin{enumerate}
-  \item Types represent \textcolor{Red}{mathematical objects}
-  \item \textcolor{Blue}{Type-checking} must be implementable by a machine
-  \end{enumerate}
-
-  When should two terms or types be considered equal by the system?
-\end{frame}
-
-\begin{frame}
-  \frametitle{Some Background}
-  I'd like to explain this problem more precisely. First we need some types.
-\end{frame}
-
-\begin{frame}
-  \frametitle{Two Standard Types}
-  Type theory has functions:
-  \[
-    \begin{array}{ccc}
-      \Arr{A}{B} & \Fun{x}{M} & \App{f}{a} \\
-      & \App{(\Fun{x}{x})}{M} = M &
-    \end{array}
-  \]
-
+  Set aside the questions of \textcolor{Red}{mathematics} and \textcolor{Blue}{programming} for a
+  second.
   \bigskip
 
-  Type theory has natural numbers
+  Type theory has functions
   \[
-    \Nat \quad \Zero \quad \Succ{N} \quad N * M \quad  N + M
+    \App{M\tikzmark{fun}}{N\tikzmark{arg}}
   \]
+  \onslide<1>{When is this application well-typed?}
+  \begin{tikzpicture}[
+    remember picture,
+    overlay,
+    expl/.style={draw=orange,fill=orange!30,rounded corners,text width=3cm},
+    arrow/.style={red!80!black,ultra thick,->,>=latex}
+    ]
+    \node<2->[expl]
+    (funex)
+    at (-4,-1cm)
+    {must have type $\Arr{A}{B}$};
+    \node<3->[expl]
+    (argex)
+    at (4,-1cm)
+    {must have type $C$};
+    \node<4->
+    at (0, -2.5cm)
+    {\textbf{We must also have $A = C$!}};
+    \draw<2->[arrow]
+    (funex) to ([xshift=-1ex,yshift=-0.5ex]{pic cs:fun});
+    \draw<3->[arrow]
+    (argex) to ([xshift=0ex,yshift=-0.5ex]{pic cs:arg});
+  \end{tikzpicture}
 \end{frame}
 
-\begin{frame}
-  \frametitle{A More Exotic Type}
+% \begin{frame}
+%   \frametitle{Some Background}
+%   I'd like to explain this problem more precisely. First we need some types.
+% \end{frame}
 
-  Type theory also has \emph{length-indexed} lists: vectors.
-  \[
-    \Vect{A}{N} \quad \Nil \quad \Cons{M}{L}
-  \]
+% \begin{frame}
+%   \frametitle{Functions and Natural Numbers}
+%   Type theory has natural numbers:
+%   \[
+%     \Zero \quad \Succ{N} \quad M_0 + M_1 \quad M_0 * M_1
+%   \]
+%   \pause
 
-\end{frame}
+%   Type theory also has functions:
+%   \begin{align*}
+%     \Lang{id} &\triangleq \Fun{x}{x}\\
+%     \Lang{const} &\triangleq \Fun{x}{\Fun{y}{x}}
+%   \end{align*}
+%   As an example:
+%   \[
+%     \App{\App{\Lang{const}}{M_0}}{M_1} = M_0
+%   \]
+% \end{frame}
+
+% \begin{frame}
+%   \frametitle{A More Exotic Type}
+
+%   Type theory also has \emph{length-indexed} lists: vectors.
+%   \begin{displaymath}
+%     \onslide<1> \underbrace{ \onslide<1->
+%       M : \Vect{A\tikzmark{type}}{N\tikzmark{length}}
+%       \onslide<1> }_{M \text{ has type } \Vect{A}{N}}
+%   \end{displaymath}
+%   \begin{tikzpicture}[
+%     remember picture,
+%     overlay,
+%     expl/.style={draw=orange,fill=orange!30,rounded corners,text width=3cm},
+%     arrow/.style={red!80!black,ultra thick,->,>=latex}
+%     ]
+%     \node<2->[expl]
+%     (colonex)
+%     at (1,-2cm)
+%     {``is of type''};
+%     \node<3->[expl]
+%     (typeex)
+%     at (1,4cm)
+%     {``a list of $A$s''};
+%     \node<3->[expl]
+%     (lengthex)
+%     at (5, 0.75cm)
+%     {``of length $N$''};
+%     \draw<2->[arrow]
+%     (colonex) to ([xshift=-0.7ex,yshift=-0.1ex]{pic cs:colon});
+%     \draw<3->[arrow]
+%     (typeex.east) to[out=0,in=230] ([xshift=2ex,yshift=-0.5ex]{pic cs:type});
+%     \draw<4->[arrow]
+%     (lengthex.west) to ([xshift=1ex,yshift=0.5ex]{pic cs:length});
+%   \end{tikzpicture}
+
+% \end{frame}
 
 \end{document}
