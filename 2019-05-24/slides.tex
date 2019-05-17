@@ -2,17 +2,28 @@
 \usepackage{tikz}
 \usetikzlibrary{tikzmark,positioning}
 \usepackage[customcolors]{hf-tikz}
-\usepackage{natbib}
-\usepackage{bibentry}
-\usepackage{microtype, times}
-\usepackage{amsmath, amssymb, mathpartir, stmaryrd}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathpartir,stmaryrd}
+\usepackage[style=alphabetic,backref=true,maxbibnames=1000,natbib=true]{biblatex}
 \usepackage{wasysym}
 \usepackage{textcomp}
 \usepackage[normalem]{ulem}
 \usepackage{listings}
 \usepackage{color}
 \usepackage{xparse}
-\usepackage{subfig}
+\usepackage{newtxmath}
+\usepackage[nameinlink,capitalize,noabbrev]{cleveref}
+
+\definecolor{JadeGreen}{RGB}{0,168,107}
+\definecolor{MunsellPurple}{RGB}{159,0,197}
+\definecolor{LightGrey}{gray}{0.9}
+\definecolor{CobaltBlue}{RGB}{0,71,171}
+\definecolor{FireBrick}{RGB}{228,34,23}
+\definecolor{Alabaster}{RGB}{250,250,250}
+
+\usetheme[numbering=counter]{metropolis}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{itemize items}{$\bullet$}
 
 \NewDocumentCommand{\Arr}{m m}{#1 \to #2}
 \NewDocumentCommand{\Fun}{m m}{\mathsf{fun}\, #1 \Rightarrow #2}
@@ -27,29 +38,10 @@
 
 \NewDocumentCommand{\Nf}{m m}{\llbracket #1 : #2 \rrbracket}
 
-\usefonttheme[onlymath]{serif}
-\definecolor{JadeGreen}{RGB}{0,168,107}
-\definecolor{MunsellPurple}{RGB}{159,0,197}
-\definecolor{LightGrey}{gray}{0.9}
-\definecolor{CobaltBlue}{RGB}{0,71,171}
-\definecolor{FireBrick}{RGB}{228,34,23}
-\definecolor{Alabaster}{RGB}{250,250,250}
-
-\hfsetfillcolor{blue!15}
-\hfsetbordercolor{blue!15}
-
-\setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{footline}{%
-  \raisebox{7pt}{\makebox[\paperwidth]{\hfill\makebox[10pt]{\scriptsize\insertframenumber}\quad}}}
-\setbeamertemplate{headline}{}
-\setbeamercolor{example text}{fg=CobaltBlue}
-\setbeamertemplate{itemize items}{$\bullet$}
-
 \title{Implementing a Modal Dependent Type Theory}
-\author{\textbf{Daniel Gratzer}\inst{1}\\%
-  Jonathan Sterling\inst{2} \and Lars Birkedal\inst{1}}
+\author{\textbf{Daniel Gratzer}\inst{1} \and Jonathan Sterling\inst{2} \and Lars Birkedal\inst{1}}
 \institute{\inst{1} This University \smiley{} \\ \inst{2} Not This University \frownie{}}
-\date{May 24 2019}
+\date{May 24, 2019}
 
 \begin{document}
 \begin{frame}[noframenumbering]
@@ -70,17 +62,18 @@
 
   An alternative title:
   \begin{center}
-    \color{Blue}
-    \Large
-    Implementing type theory
+    \Large\bf
+    Implementing Type Theory
   \end{center}
 
 \end{frame}
 
 \begin{frame}
   \frametitle{Some terminology}
-  Languages classify expressions into different \emph{types} (\texttt{int},
-  \texttt{string}, \texttt{char}).
+  Languages classify expressions into different \emph{types}
+  (\texttt{\textcolor{CobaltBlue}{int}},
+  \texttt{\textcolor{CobaltBlue}{string}},
+  \texttt{\textcolor{CobaltBlue}{char}}).
   \pause
 
   \begin{description}
@@ -95,10 +88,11 @@
 
   What is type theory? Type theory is a....
   \begin{itemize}
+  \setbeamercolor{itemize item}{fg=CobaltBlue}
   \item programming language with a rich type system.
   \setbeamercolor{itemize item}{fg=red}
   \item framework for reasoning about mathematical objects.
-  \setbeamercolor{itemize item}{fg=CobaltBlue}
+
   \end{itemize}
   \pause
   \bigskip
@@ -132,14 +126,14 @@
 
   Type theory has functions
   \[
-    \App{M\tikzmark{fun}}{N\tikzmark{arg}}
+    \App{f\tikzmark{fun}}{a\tikzmark{arg}}
   \]
   \onslide<1>{When is this application well-typed?}
   \begin{tikzpicture}[
     remember picture,
     overlay,
-    expl/.style={draw=orange,fill=orange!30,rounded corners,text width=3cm},
-    arrow/.style={red!80!black,ultra thick,->,>=latex}
+    expl/.style={draw=Alabaster,fill=orange!30,rounded corners,text width=3cm},
+    arrow/.style={RoyalBlue!80!black,ultra thick,->,>=latex}
     ]
     \node<2->[expl]
     (funex)
@@ -150,7 +144,7 @@
     at (3,-0.75cm)
     {must have type $C$};
     \node<4->
-    at (0, -2.5cm)
+    at (0, -1.75cm)
     {\textbf{We must also have $A = C$!}};
     \draw<2->[arrow]
     (funex) to ([xshift=-1ex,yshift=-0.5ex]{pic cs:fun});
@@ -172,7 +166,7 @@
   \frametitle{Just type equality?}
   Deciding type equality is always a problem but we have fancier types:
   \[
-    \Vect{A}{M} \qquad\quad\qquad\quad\text{A list of $A$s of length $M$}
+    \Vect{A}{n} \qquad\quad\qquad\quad\text{A list of $A$s of length $n$}
   \]
   \pause
   We don't just need type equality... we need term equality too!
