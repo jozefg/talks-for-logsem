@@ -12,6 +12,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{xparse}
+\usepackage{subfig}
 
 \NewDocumentCommand{\Arr}{m m}{#1 \to #2}
 \NewDocumentCommand{\Fun}{m m}{\mathsf{fun}\, #1 \Rightarrow #2}
@@ -77,22 +78,29 @@
 \end{frame}
 
 \begin{frame}
+  \frametitle{Some terminology}
+  Languages classify expressions into different \emph{types} (\texttt{int},
+  \texttt{string}, \texttt{char}).
+  \pause
+
+  \begin{description}
+  \item[Type System] The rules for what expressions belong to which types.
+  \item[Type-Checker] The program that makes sure we follow the rules.
+  \end{description}
+
+\end{frame}
+
+\begin{frame}
   \frametitle{Setting the Scene}
 
   What is type theory? Type theory is a....
-  \only<1>{\setbeamercolor{itemize item}{fg=red}}
   \begin{itemize}
-  \item well-behaved programming language with a rich type system.
-    \only<1>{\setbeamercolor{itemize item}{fg=CobaltBlue}}
-    \only<2>{\setbeamercolor{itemize item}{fg=red}}
-
+  \item programming language with a rich type system.
+  \setbeamercolor{itemize item}{fg=red}
   \item framework for reasoning about mathematical objects.
-    \only<2>{\setbeamercolor{itemize item}{fg=CobaltBlue}}
-    \only<3>{\setbeamercolor{itemize item}{fg=red}}
-
-  \item foundation for mathematics.
+  \setbeamercolor{itemize item}{fg=CobaltBlue}
   \end{itemize}
-  \pause\pause\pause
+  \pause
   \bigskip
 
 
@@ -135,11 +143,11 @@
     ]
     \node<2->[expl]
     (funex)
-    at (-4,-1cm)
+    at (-3,-0.75cm)
     {must have type $\Arr{A}{B}$};
     \node<3->[expl]
     (argex)
-    at (4,-1cm)
+    at (3,-0.75cm)
     {must have type $C$};
     \node<4->
     at (0, -2.5cm)
@@ -152,11 +160,11 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Type-checking and Decidability}
+  \frametitle{How hard is type-checking?}
   What should we take away from this example?
   \begin{enumerate}
-  \item Type-checking entails deciding the equality of types.
-  \item If we want an implementation, type equality must be decidable.
+  \item In order to type-check, we must check if two types are equal.
+  \item We need a program checking type equality.
   \end{enumerate}
 \end{frame}
 
@@ -172,13 +180,14 @@
 
 \begin{frame}
   \frametitle{The mess we're in}
-  In order to implement type theory we must decide the equality of terms.
+  In order to implement type theory we must check the equality of terms.
   \begin{enumerate}
-  \item So this is completely impossible in a Turing-complete language.
+  \item So this is completely impossible in a Turing-complete language\footnote{Python, Java, C,
+      C++, PostScript, and Magic the Gathering are all Turing-complete}.
   \item Actually it's impossible in many Turing-\emph{incomplete} languages as well.
-  \item Many equalities we expect mathematical are impossible to decide:
+  \item Many equalities we expect are impossible to automatically check:
     \[
-      f = g \iff \text{for all } x.\ \App{f}{x} = \App{g}{x}
+      f = g \iff \text{for all } x,\ \App{f}{x} = \App{g}{x}
     \]
   \end{enumerate}
 \end{frame}
@@ -187,27 +196,27 @@
   \frametitle{Modern Type Theory}
   The central balancing act is then defining an equality relation which is
   \begin{itemize}
-  \item sufficiently strong to match our \textcolor{Red}{mathematical} intuitions.
-  \item decidable so that we can \textcolor{Blue}{implement} it.
+  \item strong enough to match our \textcolor{Red}{mathematical} intuitions.
+  \item simple enough that we can \textcolor{Blue}{implement} it.
   \end{itemize}
   \bigskip
 
   Our work focused on experimenting with this balance for \emph{modal type theory}.
 \end{frame}
 
-\begin{frame}
-  \frametitle{My Only Technical Slide, Promise}
+% \begin{frame}
+%   \frametitle{My Only Technical Slide, Promise}
 
-  The way that we prove decidability of equality is normalization.
-  \begin{theorem}[Normalization]
-    There exists a function $\Nf{M}{A}$ satisfying the following properties:
-    \begin{itemize}
-    \item $\Nf{M}{A}$ is identical to $\Nf{N}{A}$ if $M = N : A$
-    \item $\Nf{M}{A} = M : A$
-    \item $\Nf{\Nf{M}{A}}{A}$ is identical to $\Nf{M}{A}$
-    \end{itemize}
-  \end{theorem}
-\end{frame}
+%   The way that we prove decidability of equality is normalization.
+%   \begin{theorem}[Normalization]
+%     There exists a function $\Nf{M}{A}$ satisfying the following properties:
+%     \begin{itemize}
+%     \item $\Nf{M}{A}$ is identical to $\Nf{N}{A}$ if $M = N : A$
+%     \item $\Nf{M}{A} = M : A$
+%     \item $\Nf{\Nf{M}{A}}{A}$ is identical to $\Nf{M}{A}$
+%     \end{itemize}
+%   \end{theorem}
+% \end{frame}
 
 \begin{frame}
   \frametitle{Conclusions (some of the stuff I skipped)}
@@ -216,7 +225,36 @@
   \item Using type theory, we can ``run'' proofs math.
   \item We can use computer science to explore mathematics.
   \item We can use maths to inspire better PLs.
-  \item Many, many, many unexplored and interesting questions remain.
+  \item Many unexplored and interesting questions remain.
   \end{itemize}
 \end{frame}
+
+\begin{frame}
+  \frametitle{Conclusions (the logsem group)}
+  If this sounds interesting, please come talk to us!
+  \begin{figure}
+    \begin{tabular}{ccccc}
+    {\includegraphics[height = 0.5in]{aslan.jpg}}      &
+    {\includegraphics[height = 0.5in]{lars.jpg}}       &
+    {\includegraphics[height = 0.5in]{bas.jpg}}        &
+    {\includegraphics[height = 0.5in]{jaco.jpg}}       &
+    {\includegraphics[height = 0.5in]{danil.jpg}}     \\
+    {\includegraphics[height = 0.5in]{sabine.jpg}}     &
+    {\includegraphics[height = 0.5in]{alix.png}}       &
+    {\includegraphics[height = 0.5in]{kristoffer.jpg}} &
+    {\includegraphics[height = 0.5in]{johan.jpg}}      &
+    {\includegraphics[height = 0.5in]{martin.png}}    \\
+    {\includegraphics[height = 0.5in]{jeppe.png}}      &
+    {\includegraphics[height = 0.5in]{aina.png}}       &
+    {\includegraphics[height = 0.5in]{jakob.png}}      &
+    {\includegraphics[height = 0.5in]{marit.png}}      &
+    {\includegraphics[height = 0.5in]{mathias.jpg}}   \\
+                                                       &
+    {\includegraphics[height = 0.5in]{lau.jpg}}        &
+    {\includegraphics[height = 0.5in]{soeren.jpg}}     &
+    {\includegraphics[height = 0.5in]{me.jpg}}         &
+    \end{tabular}
+  \end{figure}
+\end{frame}
+
 \end{document}
