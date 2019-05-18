@@ -98,7 +98,7 @@
   \bigskip
 
 
-  Each viewpoint induces requirements on a good type theory.
+  Both viewpoints induce requirements on a good type theory.
 \end{frame}
 
 \begin{frame}
@@ -126,7 +126,7 @@
 
   Type theory has functions
   \[
-    \App{f\tikzmark{fun}}{a\tikzmark{arg}}
+    \App{\Lang{useful\_function}\tikzmark{fun}}{\Lang{important\_argument}\tikzmark{arg}}
   \]
   \onslide<1>{When is this application well-typed?}
   \begin{tikzpicture}[
@@ -147,9 +147,9 @@
     at (0, -1.75cm)
     {\textbf{We must also have $A = C$!}};
     \draw<2->[arrow]
-    (funex) to ([xshift=-1ex,yshift=-0.5ex]{pic cs:fun});
+    (funex) to ([xshift=-7ex,yshift=-0.5ex]{pic cs:fun});
     \draw<3->[arrow]
-    (argex) to ([xshift=0ex,yshift=-0.5ex]{pic cs:arg});
+    (argex) to ([xshift=-3ex,yshift=-0.5ex]{pic cs:arg});
   \end{tikzpicture}
 \end{frame}
 
@@ -246,7 +246,7 @@
                                                        &
     {\includegraphics[height = 0.5in]{lau.jpg}}        &
     {\includegraphics[height = 0.5in]{soeren.jpg}}     &
-    {\includegraphics[height = 0.5in]{me.jpg}}         &
+    {\includegraphics[height = 0.5in]{betterme.jpg}}   &
     \end{tabular}
   \end{figure}
 \end{frame}
