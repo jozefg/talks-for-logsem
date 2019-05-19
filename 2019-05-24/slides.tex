@@ -1,6 +1,6 @@
 \documentclass[usenames,dvipsnames,aspectratio=169,12pt]{beamer}
 \usepackage{tikz}
-\usetikzlibrary{tikzmark,positioning}
+\usetikzlibrary{tikzmark,positioning,intersections}
 \usepackage[customcolors]{hf-tikz}
 \usepackage{microtype}
 \usepackage{amsmath,amssymb,mathpartir,stmaryrd}
@@ -34,7 +34,7 @@
 \NewDocumentCommand{\Vect}{m m}{\mathsf{Vec}(#1, #2)}
 \NewDocumentCommand{\Nil}{}{\mathsf{nil}}
 \NewDocumentCommand{\Cons}{m m}{#1 {:} #2}
-\NewDocumentCommand{\Lang}{m}{\mathsf{#1}}
+\NewDocumentCommand{\Lang}{m}{\mathtt{#1}}
 
 \NewDocumentCommand{\Nf}{m m}{\llbracket #1 : #2 \rrbracket}
 
@@ -95,28 +95,42 @@
 
   \end{itemize}
   \pause
-  \bigskip
+  \centering
+  \begin{tikzpicture}
+    \begin{scope}[shift={(3cm,-4.3cm)}, fill opacity=0.5,
+      mytext/.style={text opacity=1,font=\large\bfseries}]
 
+      \draw[fill=red, draw = black] (-2.8,0) ellipse (4 and 2);
+      \draw[fill=CobaltBlue, draw = black,name path=circle 2] (2.8,0) ellipse (4 and 2);
 
-  Both viewpoints induce requirements on a good type theory.
+      % \pgftransparencygroup
+      % \clip (-1.5,0) circle (3);
+      % \fill[green] (1.5,0) circle (3);
+      % \filldraw[draw,fill=green,name intersections={of=circle 1 and circle 2}] (intersection-1) .. controls +(-4,1) and +(-4,-1) ..(intersection-2);
+      % \endpgftransparencygroup
+      \node[mytext] at (-3.3,0) (B) {Mathematics};
+      \node[mytext] at (3.3,0) (C) {Programming};
+      \node[mytext] at (0,0) (C) {{\color{White} $\overset{\text{\large Type}}{\text{Theory}}$}};
+    \end{scope}
+  \end{tikzpicture}
 \end{frame}
 
-\begin{frame}
-  \frametitle{The Fundamental Tension}
+% \begin{frame}
+%   \frametitle{The Fundamental Tension}
 
-  We want a type theory which is suitable for
+%   We want a type theory which is suitable for
 
-  \begin{center}
-    \textcolor{Red}{studying mathematics}
-  \end{center}
+%   \begin{center}
+%     \textcolor{Red}{studying mathematics}
+%   \end{center}
 
-  but at the same time still serves as setting for
+%   but at the same time still serves as setting for
 
-  \begin{center}
-    \textcolor{Blue}{programming}
-  \end{center}
+%   \begin{center}
+%     \textcolor{Blue}{programming}
+%   \end{center}
 
-\end{frame}
+% \end{frame}
 
 \begin{frame}
   \frametitle{A Concrete Issue}
@@ -125,19 +139,22 @@
   \bigskip
 
   Type theory has functions
-  \[
-    \App{\Lang{useful\_function}\tikzmark{fun}}{\Lang{important\_argument}\tikzmark{arg}}
-  \]
+  \setbeamercolor{block body example}{bg=LightGrey}
+  \begin{example}
+    \[
+      \App{\Lang{useful\_\tikzmark{fun}function}}{\Lang{important\_\tikzmark{arg}argument}}
+    \]
+  \end{example}
   \onslide<1>{When is this application well-typed?}
   \begin{tikzpicture}[
     remember picture,
     overlay,
     expl/.style={draw=Alabaster,fill=orange!30,rounded corners,text width=3cm},
-    arrow/.style={Gray,ultra thick,->,>=latex}
+    arrow/.style={Gray!70!black,ultra thick,->,>=latex}
     ]
     \node<2->[expl]
     (funex)
-    at (-3,-0.75cm)
+    at (-3.5,-0.75cm)
     {must have type $\Arr{A}{B}$};
     \node<3->[expl]
     (argex)
@@ -147,9 +164,9 @@
     at (0, -1.75cm)
     {\textbf{We must also have $A = C$!}};
     \draw<2->[arrow]
-    (funex) to ([xshift=-7ex,yshift=-0.5ex]{pic cs:fun});
+    (funex) to ([xshift=-0.5ex,yshift=-0.5ex]{pic cs:fun});
     \draw<3->[arrow]
-    (argex) to ([xshift=-3ex,yshift=-0.5ex]{pic cs:arg});
+    (argex) to ([xshift=-0.5ex,yshift=-0.5ex]{pic cs:arg});
   \end{tikzpicture}
 \end{frame}
 
