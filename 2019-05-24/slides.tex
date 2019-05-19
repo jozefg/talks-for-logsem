@@ -31,7 +31,7 @@
 \NewDocumentCommand{\Nat}{}{\mathsf{Nat}}
 \NewDocumentCommand{\Zero}{}{\mathsf{zero}}
 \NewDocumentCommand{\Succ}{m}{\mathsf{succ}(#1)}
-\NewDocumentCommand{\Vect}{m m}{\mathsf{Vec}(#1, #2)}
+\NewDocumentCommand{\Vect}{m m}{\mathtt{Vec}(#1, #2)}
 \NewDocumentCommand{\Nil}{}{\mathsf{nil}}
 \NewDocumentCommand{\Cons}{m m}{#1 {:} #2}
 \NewDocumentCommand{\Lang}{m}{\mathtt{#1}}
@@ -182,9 +182,10 @@
 \begin{frame}
   \frametitle{Just Type Equality?}
   Deciding type equality is always a problem but we have fancier types:
-  \[
-    \Vect{A}{n} \qquad\quad\qquad\quad\text{A list of $A$s of length $n$}
-  \]
+  \begin{align*}
+    \Vect{\Lang{A}}{\Lang{n}} &&
+    \text{A list of $\Lang{A}$s of length $\Lang{n}$}
+  \end{align*}
   \pause
   We don't just need type equality... we need term equality too!
 \end{frame}
