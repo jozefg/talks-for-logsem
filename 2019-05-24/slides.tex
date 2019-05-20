@@ -38,7 +38,7 @@
 
 \NewDocumentCommand{\Nf}{m m}{\llbracket #1 : #2 \rrbracket}
 
-\title{Implementing a Modal Dependent Type Theory}
+\title{Implementing Type Theory}
 \author{\textbf{Daniel Gratzer}\inst{1} \and Jonathan Sterling\inst{2} \and Lars Birkedal\inst{1}}
 \institute{\inst{1} This University \smiley{} \\ \inst{2} Not This University \frownie{}}
 \date{May 24, 2019}
@@ -48,25 +48,17 @@
   \titlepage
 \end{frame}
 
-\begin{frame}
-  \frametitle{Hello!}
-  First things first, the title of this talk is a lie.
-  \pause
+% \begin{frame}
+%   \frametitle{Hello!}
+%   I'm a new PhD student in the LogSem group.
+%   \bigskip
 
-  \begin{itemize}
-  \item I don't want to talk about \emph{modal} dependent type theory.
-  \item I'd like to talk about the core idea behind this work.
-  \end{itemize}
-  \pause
-  \bigskip
-
-  An alternative title:
-  \begin{center}
-    \Large\bf
-    Implementing Type Theory
-  \end{center}
-
-\end{frame}
+%   \begin{itemize}
+%   \item This talk is nominally based on a recent paper.
+%   \item Really though, I'd like to talk about the core idea behind the work.
+%   \item Motivate some of the problems we think about in LogSem.
+%   \end{itemize}
+% \end{frame}
 
 \begin{frame}
   \frametitle{Some Terminology}
@@ -74,7 +66,6 @@
   (\texttt{\textcolor{CobaltBlue}{int}},
   \texttt{\textcolor{CobaltBlue}{string}},
   \texttt{\textcolor{CobaltBlue}{char}}).
-  \pause
 
   \begin{description}
   \item[Type System] The rules for what expressions belong to which types.
@@ -154,15 +145,15 @@
     ]
     \node<2->[expl]
     (funex)
-    at (-3.5,-0.75cm)
+    at (-5,-0.75cm)
     {must have type $\Arr{A}{B}$};
     \node<3->[expl]
     (argex)
-    at (3,-0.75cm)
+    at (4.5,-0.75cm)
     {must have type $C$};
     \node<4->
-    at (0, -1.75cm)
-    {\textbf{We must also have $A = C$!}};
+    at (0, -0.75cm)
+    {\textbf{We must also have $A = C$}};
     \draw<2->[arrow]
     (funex) to ([xshift=-0.5ex,yshift=-0.5ex]{pic cs:fun});
     \draw<3->[arrow]
@@ -187,7 +178,10 @@
     \text{A list of $\Lang{A}$s of length $\Lang{n}$}
   \end{align*}
   \pause
-  We don't just need type equality... we need term equality too!
+  We need more than type equality... we need term equality too!
+  \[
+    \Vect{\Lang{A}}{2 * \Lang{n}} \stackrel{?}{=} \Vect{\Lang{A}}{\Lang{n} + \Lang{n}}
+  \]
 \end{frame}
 
 \begin{frame}
@@ -211,9 +205,17 @@
   \item strong enough to match our \textcolor{Red}{mathematical} intuitions.
   \item simple enough that we can \textcolor{Blue}{implement} it.
   \end{itemize}
-  \bigskip
+\end{frame}
 
-  Our work focused on experimenting with this balance for \emph{modal type theory}.
+\begin{frame}
+  \frametitle{Implementing Type Theory}
+  Once this is done we can write programs with very strong guarantees:
+  \begin{alignat*}{2}
+    &\Lang{map} : (\Lang{A} \to \Lang{B}) &&\to \Vect{\Lang{A}}{\Lang{n}} \to \Vect{\Lang{B}}{\Lang{n}}\\
+    &\App{\Lang{map}}{\Lang{f}, []} &&\triangleq []\\
+    &\App{\Lang{map}}{\Lang{f}, \Lang{h} :: \Lang{t}} &&\triangleq \App{\Lang{f}}{\Lang{h}} :: \App{\Lang{map}}{\Lang{f}, \Lang{t}}
+  \end{alignat*}
+  See our ICFP'19 paper: \url{https://jozefg.github.io/papers/modal.pdf}
 \end{frame}
 
 % \begin{frame}
@@ -234,7 +236,7 @@
   \frametitle{Conclusions (Some of the Stuff I Skipped)}
   I cut out a lot of cool stuff in this talk:
   \begin{itemize}
-  \item Using type theory, we can ``run'' proofs math.
+  \item Using type theory, we can ``run'' math proofs.
   \item We can use computer science to explore mathematics.
   \item We can use maths to inspire better PLs.
   \item Many unexplored and interesting questions remain.
@@ -255,16 +257,17 @@
     {\includegraphics[height = 0.5in]{alix.png}}       &
     {\includegraphics[height = 0.5in]{kristoffer.jpg}} &
     {\includegraphics[height = 0.5in]{johan.jpg}}      &
-    {\includegraphics[height = 0.5in]{martin.png}}    \\
+    {\includegraphics[height = 0.5in]{martin.jpg}}    \\
     {\includegraphics[height = 0.5in]{jeppe.png}}      &
-    {\includegraphics[height = 0.5in]{aina.png}}       &
+    {\includegraphics[height = 0.5in]{aina.jpg}}       &
     {\includegraphics[height = 0.5in]{jakob.png}}      &
     {\includegraphics[height = 0.5in]{marit.png}}      &
     {\includegraphics[height = 0.5in]{mathias.jpg}}   \\
-                                                       &
+    {\includegraphics[height = 0.5in]{simon.jpg}}      &
     {\includegraphics[height = 0.5in]{lau.jpg}}        &
     {\includegraphics[height = 0.5in]{soeren.jpg}}     &
     {\includegraphics[height = 0.5in]{me.jpg}}         &
+    {\includegraphics[height = 0.5in]{andreas.png}}
     \end{tabular}
   \end{figure}
 \end{frame}
