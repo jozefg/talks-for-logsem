@@ -181,8 +181,9 @@
   Once this is done we can write programs with very strong guarantees:
   \begin{alignat*}{2}
     &\Lang{map} : (\Lang{A} \to \Lang{B}) &&\to \Vect{\Lang{A}}{\Lang{n}} \to \Vect{\Lang{B}}{\Lang{n}}\\
-    &\App{\Lang{map}}{\Lang{f}, []} &&\triangleq []\\
-    &\App{\Lang{map}}{\Lang{f}, \Lang{h} :: \Lang{t}} &&\triangleq \App{\Lang{f}}{\Lang{h}} :: \App{\Lang{map}}{\Lang{f}, \Lang{t}}
+    &\App{\Lang{map}}{\Lang{f},\ []} &&\triangleq []\\
+    &\App{\Lang{map}}{\Lang{f},\ \Lang{h} :: \Lang{t}}
+    &&\triangleq \App{\Lang{f}}{\Lang{h}} :: \App{\Lang{map}}{\Lang{f},\ \Lang{t}}
   \end{alignat*}
   See our ICFP'19 paper: \url{https://jozefg.github.io/modal.pdf}
 \end{frame}
@@ -209,7 +210,7 @@
     {\includegraphics[height = 0.5in]{jaco.jpg}}       &
     {\includegraphics[height = 0.5in]{danil.jpg}}     \\
     {\includegraphics[height = 0.5in]{sabine.jpg}}     &
-    {\includegraphics[height = 0.5in]{alix.png}}       &
+    {\includegraphics[height = 0.5in]{alix.jpg}}       &
     {\includegraphics[height = 0.5in]{kristoffer.jpg}} &
     {\includegraphics[height = 0.5in]{johan.jpg}}      &
     {\includegraphics[height = 0.5in]{martin.jpg}}    \\
