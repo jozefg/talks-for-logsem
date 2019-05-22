@@ -58,7 +58,7 @@
   \texttt{\textcolor{CobaltBlue}{char}}).
 
   \begin{description}
-  \item[Type System] The rules for what expressions belong to which types.
+  \item[Type System\phantom{r}] The rules for what expressions belong to which types.
   \item[Type-Checker] The program that makes sure we follow the rules.
   \end{description}
 
@@ -135,7 +135,7 @@
   What should we take away from this example?
   \begin{enumerate}
   \item In order to type-check, we must check if two types are equal.
-  \item We need a program checking type equality.
+  \item So we need a program checking type equality.
   \end{enumerate}
 \end{frame}
 
@@ -162,7 +162,7 @@
   \item Actually it's impossible in many Turing-\emph{incomplete} languages as well.
   \item Many equalities we expect are impossible to automatically check:
     \[
-      f = g \iff \text{for all } x,\ \App{f}{x} = \App{g}{x}
+      \Lang{f} = \Lang{g} \iff \text{for all } \Lang{x},\ \App{\Lang{f}}{\Lang{x}} = \App{\Lang{g}}{\Lang{x}}
     \]
   \end{enumerate}
 \end{frame}
@@ -178,14 +178,23 @@
 
 \begin{frame}
   \frametitle{Implementing Type Theory}
-  Once this is done we can write programs with very strong guarantees:
-  \begin{alignat*}{2}
-    &\Lang{map} : (\Lang{A} \to \Lang{B}) &&\to \Vect{\Lang{A}}{\Lang{n}} \to \Vect{\Lang{B}}{\Lang{n}}\\
-    &\App{\Lang{map}}{\Lang{f},\ []} &&\triangleq []\\
-    &\App{\Lang{map}}{\Lang{f},\ \Lang{h} :: \Lang{t}}
-    &&\triangleq \App{\Lang{f}}{\Lang{h}} :: \App{\Lang{map}}{\Lang{f},\ \Lang{t}}
-  \end{alignat*}
-  See our ICFP'19 paper: \url{https://jozefg.github.io/modal.pdf}
+  The Process\footnote{Elided: the coffee \& false starts, or where I get distracted by random Wikipedia articles.}:
+  \begin{enumerate}
+  \item Write down the rules of the type system. \hfill (2 pages)
+  \item \textcolor{Red}{Prove} the decidability of type-checking. \hfill (90 pages)
+  \item \textcolor{Blue}{Implement} the type-checker. \hfill (300 lines)
+  \end{enumerate}
+  % \begin{alignat*}{2}
+  %   &\Lang{map} : (\Lang{A} \to \Lang{B}) &&\to \Vect{\Lang{A}}{\Lang{n}} \to \Vect{\Lang{B}}{\Lang{n}}\\
+  %   &\App{\Lang{map}}{\Lang{f},\ []} &&\triangleq []\\
+  %   &\App{\Lang{map}}{\Lang{f},\ \Lang{h} :: \Lang{t}}
+  %   &&\triangleq \App{\Lang{f}}{\Lang{h}} :: \App{\Lang{map}}{\Lang{f},\ \Lang{t}}
+  % \end{alignat*}
+  % See our ICFP'19 paper:
+  % \begin{itemize}
+  % \item \url{https://jozefg.github.io/modal.pdf}
+  % \item \url{https://github.com/jozefg/blott}
+  % \end{itemize}
 \end{frame}
 
 \begin{frame}
