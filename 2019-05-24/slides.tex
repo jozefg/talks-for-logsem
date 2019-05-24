@@ -149,7 +149,7 @@
   \pause
   We need more than type equality... we need term equality too!
   \[
-    \Vect{\Lang{A}}{2 * \Lang{n}} \stackrel{?}{=} \Vect{\Lang{A}}{\Lang{n} + \Lang{n}}
+    \Vect{\Lang{A}}{2 * \Lang{n}} \overset{?}{=} \Vect{\Lang{A}}{\Lang{n} + \Lang{n}}
   \]
 \end{frame}
 
@@ -157,7 +157,7 @@
   \frametitle{The Mess We're In}
   In order to implement type theory we must check the equality of terms.
   \begin{enumerate}
-  \item So this is completely impossible in a Turing-complete language\footnote{Python, Java, C,
+  \item This is completely impossible in a Turing-complete language\footnote{Python, Java, C,
       C++, PostScript, and Magic the Gathering are all Turing-complete}.
   \item Actually it's impossible in many Turing-\emph{incomplete} languages as well.
   \item Many equalities we expect are impossible to automatically check:
@@ -177,7 +177,17 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{Implementing Type Theory}
+  \frametitle{Our Work}
+  We designed a theory of equality for a particular \emph{modal} type theory.
+  \begin{itemize}
+  \item The type theory was mathematically motivated.
+  \item But it is still interesting for programmming.
+  \end{itemize}
+  In both cases, having an implementation was important!
+\end{frame}
+
+\begin{frame}
+  \frametitle{Implementing Modal Type Theory}
   The Process\footnote{Elided: the coffee \& false starts, or where I get distracted by random Wikipedia articles.}:
   \begin{enumerate}
   \item Write down the rules of the type system. \hfill (2 pages)
@@ -190,7 +200,7 @@
   %   &\App{\Lang{map}}{\Lang{f},\ \Lang{h} :: \Lang{t}}
   %   &&\triangleq \App{\Lang{f}}{\Lang{h}} :: \App{\Lang{map}}{\Lang{f},\ \Lang{t}}
   % \end{alignat*}
-  See our ICFP'19 paper: \url{https://jozefg.github.io/modal.pdf}
+  See our paper: \url{https://jozefg.github.io/modal.pdf}
 \end{frame}
 
 \begin{frame}
